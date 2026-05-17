@@ -116,7 +116,7 @@ abstract class WorkoutDatabase : RoomDatabase() {
                     WorkoutDatabase::class.java,
                     "workout_database"
                 )
-                .fallbackToDestructiveMigration() // Dev app: simplified migration
+                // .fallbackToDestructiveMigration() // TÖRLÉSRE KERÜLT, hogy megmaradjanak az adatok
                 .build()
                 INSTANCE = instance
                 instance

@@ -33,6 +33,15 @@ A modern, professional fitness tracking application built with **Kotlin** and **
 - **Navigation**: [Compose Navigation](https://developer.android.com/jetpack/compose/navigation)
 - **DI/Build System**: Gradle 9.x with Version Catalogs (.toml)
 
+## Changelog 📝
+
+### v1.0.6
+- **Database Fix**: Disabled destructive migration to prevent data loss during app updates. Your workout history is now safe across future versions.
+- **Auto-Version UI**: The version number in the menu now automatically synchronizes with the project settings.
+
+### v1.0.5
+- Initial public release with basic history and exercise management.
+
 ## Installation 📲
 
 ### Option 1: Direct APK

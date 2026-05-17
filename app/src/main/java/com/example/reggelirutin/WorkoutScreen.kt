@@ -191,7 +191,7 @@ fun WorkoutScreen(
                                 try {
                                     context.packageManager.getPackageInfo(context.packageName, 0).versionName
                                 } catch (_: Exception) {
-                                    "1.0.5"
+                                    "1.0.6"
                                 }
                             }
                             DropdownMenuItem(
