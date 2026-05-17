@@ -91,13 +91,14 @@ fun RutinButton(
 
     FilledTonalButton(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
         interactionSource = interactionSource,
         colors = ButtonDefaults.filledTonalButtonColors(
             containerColor = containerColor,
             contentColor = Color.White
         ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
         content = content
     )
 }
