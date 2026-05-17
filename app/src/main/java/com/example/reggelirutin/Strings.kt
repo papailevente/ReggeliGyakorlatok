@@ -1,0 +1,99 @@
+package com.example.reggelirutin
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+
+@Composable
+fun rememberStrings(language: String): Map<String, String> {
+    return remember(language) {
+        when (language) {
+            "English" -> mapOf(
+                "title" to "Morning Routine",
+                "total_time" to "Total Workout Time",
+                "exercise_time" to "Exercise Time",
+                "rest" to "Rest",
+                "exercises" to "Exercises",
+                "finish" to "Finish Workout",
+                "start" to "Start",
+                "pause" to "Pause",
+                "reset" to "Reset",
+                "set" to "Set",
+                "history" to "History",
+                "workouts_count" to "Workouts",
+                "total_minutes" to "Total Min",
+                "workout_tab" to "Workout",
+                "history_tab" to "History",
+                "about_title" to "About",
+                "recent_workouts" to "Recent Workouts",
+                "menu_languages" to "Languages",
+                "menu_exercises" to "Exercises",
+                "add_exercise" to "Add Exercise",
+                "edit_exercise" to "Edit Exercise",
+                "save" to "Save",
+                "delete" to "Delete",
+                "name" to "Name",
+                "description" to "Description",
+                "reps" to "Reps/Details",
+                "sets_count" to "Total Sets"
+            )
+            "Deutsch" -> mapOf(
+                "title" to "Morgenroutine",
+                "total_time" to "Gesamtzeit",
+                "exercise_time" to "Übungszeit",
+                "rest" to "Pause",
+                "exercises" to "Übungen",
+                "finish" to "Training beenden",
+                "start" to "Start",
+                "pause" to "Pause",
+                "reset" to "Reset",
+                "set" to "Satz",
+                "history" to "Verlauf",
+                "workouts_count" to "Trainings",
+                "total_minutes" to "Gesamt Min",
+                "workout_tab" to "Training",
+                "history_tab" to "Verlauf",
+                "about_title" to "Über",
+                "recent_workouts" to "Letzte Trainingseinheiten",
+                "menu_languages" to "Sprachen",
+                "menu_exercises" to "Übungen",
+                "add_exercise" to "Übung hinzufügen",
+                "edit_exercise" to "Übung bearbeiten",
+                "save" to "Speichern",
+                "delete" to "Löschen",
+                "name" to "Name",
+                "description" to "Beschreibung",
+                "reps" to "Wdh./Details",
+                "sets_count" to "Sätze gesamt"
+            )
+            else -> mapOf(
+                "title" to "Reggeli Rutin",
+                "total_time" to "Teljes edzés idő",
+                "exercise_time" to "Gyakorlat idő",
+                "rest" to "Pihenő",
+                "exercises" to "Gyakorlatok",
+                "finish" to "Edzés Befejezése",
+                "start" to "Indítás",
+                "pause" to "Szünet",
+                "reset" to "Reset",
+                "set" to "Sorozat",
+                "history" to "Történet",
+                "workouts_count" to "Edzések",
+                "total_minutes" to "Összes perc",
+                "workout_tab" to "Edzés",
+                "history_tab" to "Történet",
+                "about_title" to "Névjegy",
+                "recent_workouts" to "Legutóbbi edzések",
+                "menu_languages" to "Nyelvek",
+                "menu_exercises" to "Gyakorlatok",
+                "add_exercise" to "Gyakorlat hozzáadása",
+                "edit_exercise" to "Gyakorlat szerkesztése",
+                "save" to "Mentés",
+                "delete" to "Törlés",
+                "name" to "Név",
+                "description" to "Leírás",
+                "reps" to "Ismétlés/Részletek",
+                "sets_count" to "Összes sorozat"
+            )
+        }
+    }
+}
