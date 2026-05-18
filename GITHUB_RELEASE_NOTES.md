@@ -1,9 +1,9 @@
-# Morning Routin v1.1.2 🚀
+# MorningRoutine v1.1.2 🚀
 
-This version introduces the official rebranding to **Morning Routin**, along with a high-resolution icon and critical stability fixes.
+This version introduces the official rebranding to **MorningRoutine**, along with a high-resolution icon and critical stability fixes.
 
 ## ✨ Highlights
-*   **Official Rebrand**: Renamed from "Reggeli Rutin" to **Morning Routin**.
+*   **Official Rebrand**: Renamed from "Reggeli Rutin" to **MorningRoutine**.
 *   **New Visuals**: Integrated a high-resolution (512x512) adaptive application icon.
 *   **Startup Experience**: Smoother transition between the Android system splash and the app's custom splash screen.
 
@@ -15,7 +15,7 @@ This version introduces the official rebranding to **Morning Routin**, along wit
 
 ## 📦 Downloads
 *   **Build**: v1.1.2 (Version Code: 8)
-*   **Filename**: `MorningRoutin-v1.1.2.apk`
+*   **Filename**: `MorningRoutine-v1.1.2.apk`
 
 ---
 *Made by Zsenike with Grok and Gemini.*

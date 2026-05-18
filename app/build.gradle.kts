@@ -15,7 +15,7 @@ android {
         targetSdk = 35
         versionCode = 8
         versionName = "1.1.2"
-        base.archivesName.set("MorningRoutin")
+        base.archivesName.set("MorningRoutine")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
