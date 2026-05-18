@@ -2,6 +2,7 @@ package com.example.reggelirutin
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import com.example.reggelirutin.ui.theme.Typography
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext

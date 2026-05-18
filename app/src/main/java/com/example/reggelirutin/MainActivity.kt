@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContent {
             ReggeliRutinTheme {
@@ -50,7 +51,6 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("UNUSED_VALUE")
 fun ReggeliRutinApp() {
     val context = LocalContext.current
     val viewModel: WorkoutViewModel = viewModel(factory = WorkoutViewModel.Factory(context))
@@ -82,8 +82,8 @@ fun ReggeliRutinApp() {
         }
     }
 
-    if (updateResult is UpdateResult.NewVersionAvailable) {
-        val res = updateResult as UpdateResult.NewVersionAvailable
+    val currentUpdateResult = updateResult
+    if (currentUpdateResult is UpdateResult.NewVersionAvailable) {
         AlertDialog(
             onDismissRequest = { updateResult = null },
             title = { Text(strings["update_available"] ?: "New version available") },
@@ -91,11 +91,11 @@ fun ReggeliRutinApp() {
                 val currentVersion = try {
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName
                 } catch (_: Exception) { "1.1.0" }
-                Text("${strings["new_version"] ?: "New version"}: v${res.version}\n${strings["current_version"] ?: "Current version"}: v$currentVersion") 
+                Text("${strings["new_version"] ?: "New version"}: v${currentUpdateResult.version}\n${strings["current_version"] ?: "Current version"}: v$currentVersion") 
             },
             confirmButton = {
                 Button(onClick = { 
-                    updateManager.downloadAndInstall(res.downloadUrl)
+                    updateManager.downloadAndInstall(currentUpdateResult.downloadUrl)
                     updateResult = null
                 }) {
                     Text(strings["download_now"] ?: "Download now")
@@ -201,13 +201,16 @@ fun ReggeliRutinApp() {
                                         context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.1.0"
                                     } catch (_: Exception) { "1.1.0" }
                                     
-                                    val result = updateManager.checkForUpdate(versionName, force = true)
-                                    if (result is UpdateResult.NewVersionAvailable) {
-                                        updateResult = result
-                                    } else if (result is UpdateResult.NoUpdate) {
-                                        snackbarHostState.showSnackbar(strings["no_update"] ?: "Already on latest version")
-                                    } else {
-                                        snackbarHostState.showSnackbar(strings["update_error"] ?: "Error checking for updates")
+                                    when (val result = updateManager.checkForUpdate(versionName, force = true)) {
+                                        is UpdateResult.NewVersionAvailable -> {
+                                            updateResult = result
+                                        }
+                                        is UpdateResult.NoUpdate -> {
+                                            snackbarHostState.showSnackbar(strings["no_update"] ?: "Already on latest version")
+                                        }
+                                        else -> {
+                                            snackbarHostState.showSnackbar(strings["update_error"] ?: "Error checking for updates")
+                                        }
                                     }
                                 }
                             },

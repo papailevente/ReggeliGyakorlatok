@@ -1,6 +1,9 @@
 package com.example.reggelirutin
 
 import androidx.room.*
+import androidx.room.migration.Migration
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.execSQL
 import kotlinx.coroutines.flow.Flow
 
 data class Exercise(
@@ -109,6 +112,18 @@ abstract class WorkoutDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: WorkoutDatabase? = null
 
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(connection: SQLiteConnection) {
+                // Új tábla létrehozása, ha még nem létezett
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `exercise_definitions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `setsReps` TEXT NOT NULL, `totalSets` INTEGER NOT NULL, `restSeconds` INTEGER NOT NULL, `orderIndex` INTEGER NOT NULL)")
+                
+                // Opcionális: Ha a tábla már létezett, de új oszlopok kerültek bele (pl. restSeconds, orderIndex)
+                // SQLite-ban nincs "ADD COLUMN IF NOT EXISTS", ezért ha biztos benne, hogy ezek újak, akkor:
+                // connection.execSQL("ALTER TABLE `exercise_definitions` ADD COLUMN `restSeconds` INTEGER NOT NULL DEFAULT 60")
+                // connection.execSQL("ALTER TABLE `exercise_definitions` ADD COLUMN `orderIndex` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: android.content.Context): WorkoutDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -116,7 +131,8 @@ abstract class WorkoutDatabase : RoomDatabase() {
                     WorkoutDatabase::class.java,
                     "workout_database"
                 )
-                // .fallbackToDestructiveMigration() // TÖRLÉSRE KERÜLT, hogy megmaradjanak az adatok
+                .addMigrations(MIGRATION_1_2)
+                .fallbackToDestructiveMigration(true) // Ha a migráció nem sikerül, törli és újratölti
                 .build()
                 INSTANCE = instance
                 instance
