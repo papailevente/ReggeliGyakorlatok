@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -38,6 +39,7 @@ sealed class Screen(val route: String, val icon: ImageVector, val labelKey: Stri
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -51,6 +53,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("UnusedAssignment", "UNUSED_VALUE")
 fun ReggeliRutinApp() {
     val context = LocalContext.current
     val viewModel: WorkoutViewModel = viewModel(factory = WorkoutViewModel.Factory(context))
@@ -62,7 +65,7 @@ fun ReggeliRutinApp() {
     var showAboutDialog by remember { mutableStateOf(false) }
     var showFullScreenSplash by remember { mutableStateOf(true) }
     
-    var updateResult by remember { mutableStateOf<UpdateResult?>(null) }
+    val updateResultState = remember { mutableStateOf<UpdateResult?>(null) }
     val strings = rememberStrings(currentLanguage)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -78,14 +81,14 @@ fun ReggeliRutinApp() {
         
         val result = updateManager.checkForUpdate(versionName)
         if (result is UpdateResult.NewVersionAvailable) {
-            updateResult = result
+            updateResultState.value = result
         }
     }
 
-    val currentUpdateResult = updateResult
+    val currentUpdateResult = updateResultState.value
     if (currentUpdateResult is UpdateResult.NewVersionAvailable) {
         AlertDialog(
-            onDismissRequest = { updateResult = null },
+            onDismissRequest = { updateResultState.value = null },
             title = { Text(strings["update_available"] ?: "New version available") },
             text = { 
                 val currentVersion = try {
@@ -96,13 +99,13 @@ fun ReggeliRutinApp() {
             confirmButton = {
                 Button(onClick = { 
                     updateManager.downloadAndInstall(currentUpdateResult.downloadUrl)
-                    updateResult = null
+                    updateResultState.value = null
                 }) {
                     Text(strings["download_now"] ?: "Download now")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { updateResult = null }) {
+                TextButton(onClick = { updateResultState.value = null }) {
                     Text(strings["later"] ?: "Later")
                 }
             }
@@ -142,10 +145,8 @@ fun ReggeliRutinApp() {
                 bottomBar = {
                     if (!workoutDone) {
                         NavigationBar(
-                            modifier = Modifier.height(48.dp),
                             containerColor = Color.Black.copy(alpha = 0.4f),
-                            tonalElevation = 0.dp,
-                            windowInsets = WindowInsets(0, 0, 0, 0)
+                            tonalElevation = 0.dp
                         ) {
                             val navBackStackEntry by navController.currentBackStackEntryAsState()
                             val currentDestination = navBackStackEntry?.destination
@@ -181,10 +182,7 @@ fun ReggeliRutinApp() {
                 NavHost(
                     navController = navController, 
                     startDestination = Screen.Workout.route,
-                    modifier = Modifier.padding(
-                        top = innerPadding.calculateTopPadding(),
-                        bottom = if (workoutDone) 0.dp else 48.dp
-                    )
+                    modifier = Modifier.padding(innerPadding)
                 ) {
                     composable(Screen.Workout.route) {
                         WorkoutScreen(
@@ -203,7 +201,7 @@ fun ReggeliRutinApp() {
                                     
                                     when (val result = updateManager.checkForUpdate(versionName, force = true)) {
                                         is UpdateResult.NewVersionAvailable -> {
-                                            updateResult = result
+                                            updateResultState.value = result
                                         }
                                         is UpdateResult.NoUpdate -> {
                                             snackbarHostState.showSnackbar(strings["no_update"] ?: "Already on latest version")

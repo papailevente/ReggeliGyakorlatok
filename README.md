@@ -50,7 +50,7 @@ A modern, professional fitness tracking application built with **Kotlin** and **
 ## Installation 📲
 
 ### Option 1: Direct APK
-Download the latest `MorningRoutin.apk` from the [Releases](https://github.com/papailevente/ReggeliGyakorlatok/releases) section and install it on your Android device.
+Download the latest `MorningRoutine.apk` from the [Releases](https://github.com/papailevente/ReggeliGyakorlatok/releases) section and install it on your Android device.
 
 ### Option 2: Build from Source
 1. Clone the repository:

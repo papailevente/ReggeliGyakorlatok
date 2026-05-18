@@ -108,6 +108,7 @@ fun WorkoutScreen(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .statusBarsPadding()
                         .height(32.dp),
                     color = Color.Black.copy(alpha = 0.4f)
                 ) {
