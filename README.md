@@ -35,6 +35,11 @@ A modern, professional fitness tracking application built with **Kotlin** and **
 
 ## Changelog 📝
 
+### v1.1.0
+- **New Splash Screen**: Added a modern, themed splash screen with a custom logo for a more professional app start experience.
+- **Dynamic Backgrounds**: Implemented different splash backgrounds for portrait and landscape orientations to ensure the app looks great on any screen.
+- **Visual Branding**: Introduced a new "Morning Routine" logo centered on the startup screen.
+
 ### v1.0.6
 - **Database Fix**: Disabled destructive migration to prevent data loss during app updates. Your workout history is now safe across future versions.
 - **Auto-Version UI**: The version number in the menu now automatically synchronizes with the project settings.

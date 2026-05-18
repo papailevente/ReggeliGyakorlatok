@@ -34,7 +34,15 @@ fun rememberStrings(language: String): Map<String, String> {
                 "name" to "Name",
                 "description" to "Description",
                 "reps" to "Reps/Details",
-                "sets_count" to "Total Sets"
+                "sets_count" to "Total Sets",
+                "update_available" to "Update Available",
+                "new_version" to "New version",
+                "current_version" to "Current version",
+                "download_now" to "Download Now",
+                "later" to "Later",
+                "check_updates" to "Check for Updates",
+                "no_update" to "Already on latest version",
+                "update_error" to "Error checking for updates"
             )
             "Deutsch" -> mapOf(
                 "title" to "Morgenroutine",
@@ -63,7 +71,15 @@ fun rememberStrings(language: String): Map<String, String> {
                 "name" to "Name",
                 "description" to "Beschreibung",
                 "reps" to "Wdh./Details",
-                "sets_count" to "Sätze gesamt"
+                "sets_count" to "Sätze gesamt",
+                "update_available" to "Update Verfügbar",
+                "new_version" to "Neue Version",
+                "current_version" to "Aktuelle Version",
+                "download_now" to "Jetzt herunterladen",
+                "later" to "Später",
+                "check_updates" to "Nach Updates suchen",
+                "no_update" to "Bereits auf der neuesten Version",
+                "update_error" to "Fehler bei der Suche nach Updates"
             )
             else -> mapOf(
                 "title" to "Reggeli Rutin",
@@ -92,7 +108,15 @@ fun rememberStrings(language: String): Map<String, String> {
                 "name" to "Név",
                 "description" to "Leírás",
                 "reps" to "Ismétlés/Részletek",
-                "sets_count" to "Összes sorozat"
+                "sets_count" to "Összes sorozat",
+                "update_available" to "Frissítés elérhető",
+                "new_version" to "Új verzió",
+                "current_version" to "Jelenlegi verzió",
+                "download_now" to "Letöltés most",
+                "later" to "Később",
+                "check_updates" to "Frissítés keresése",
+                "no_update" to "A legfrissebb verziót használod",
+                "update_error" to "Hiba a frissítés ellenőrzésekor"
             )
         }
     }

@@ -37,6 +37,7 @@ fun WorkoutScreen(
     onMenuDismiss: () -> Unit,
     onLanguageChange: (String) -> Unit,
     onAboutClick: () -> Unit,
+    onCheckUpdate: () -> Unit,
     onFinishWorkout: (Int, List<Pair<String, Int>>) -> Unit,
     onNavigateToHistory: () -> Unit
 ) {
@@ -180,6 +181,10 @@ fun WorkoutScreen(
                             DropdownMenuItem(
                                 text = { Text(strings["history_tab"] ?: "History") },
                                 onClick = { onNavigateToHistory(); onMenuDismiss() }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(strings["check_updates"] ?: "Check for Updates") },
+                                onClick = { onCheckUpdate(); onMenuDismiss() }
                             )
                             HorizontalDivider()
                             DropdownMenuItem(

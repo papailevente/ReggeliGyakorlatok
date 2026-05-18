@@ -4,11 +4,9 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PlayArrow
@@ -17,16 +15,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import kotlinx.coroutines.launch
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
 
 sealed class Screen(val route: String, val icon: ImageVector, val labelKey: String) {
     object Workout : Screen("workout", Icons.Default.PlayArrow, "workout_tab")
@@ -35,6 +37,7 @@ sealed class Screen(val route: String, val icon: ImageVector, val labelKey: Stri
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContent {
@@ -47,106 +50,182 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("UNUSED_VALUE")
 fun ReggeliRutinApp() {
     val context = LocalContext.current
     val viewModel: WorkoutViewModel = viewModel(factory = WorkoutViewModel.Factory(context))
     val navController = rememberNavController()
+    val updateManager = remember { UpdateManager(context) }
     
     var currentLanguage by remember { mutableStateOf("Hungarian") }
     var menuExpanded by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
-
+    var showFullScreenSplash by remember { mutableStateOf(true) }
+    
+    var updateResult by remember { mutableStateOf<UpdateResult?>(null) }
     val strings = rememberStrings(currentLanguage)
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    if (showAboutDialog) {
+    LaunchedEffect(Unit) {
+        delay(2000)
+        showFullScreenSplash = false
+        
+        // Auto check for update
+        val versionName = try {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0.0"
+        } catch (_: Exception) { "1.0.0" }
+        
+        val result = updateManager.checkForUpdate(versionName)
+        if (result is UpdateResult.NewVersionAvailable) {
+            updateResult = result
+        }
+    }
+
+    if (updateResult is UpdateResult.NewVersionAvailable) {
+        val res = updateResult as UpdateResult.NewVersionAvailable
         AlertDialog(
-            onDismissRequest = { showAboutDialog = false },
-            title = { Text(strings["about_title"] ?: "About") },
-            text = { Text("made by Zsenike with Grok and Gemini.") },
+            onDismissRequest = { updateResult = null },
+            title = { Text(strings["update_available"] ?: "New version available") },
+            text = { 
+                val currentVersion = try {
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionName
+                } catch (_: Exception) { "1.1.0" }
+                Text("${strings["new_version"] ?: "New version"}: v${res.version}\n${strings["current_version"] ?: "Current version"}: v$currentVersion") 
+            },
             confirmButton = {
-                TextButton(onClick = { showAboutDialog = false }) { Text("OK") }
+                Button(onClick = { 
+                    updateManager.downloadAndInstall(res.downloadUrl)
+                    updateResult = null
+                }) {
+                    Text(strings["download_now"] ?: "Download now")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { updateResult = null }) {
+                    Text(strings["later"] ?: "Later")
+                }
             }
         )
     }
 
-    val workoutDone by viewModel.workoutDone
+    if (showFullScreenSplash) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = R.drawable.splash_bg),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
+    } else {
+        if (showAboutDialog) {
+            AlertDialog(
+                onDismissRequest = { if (showAboutDialog) showAboutDialog = false },
+                title = { Text(strings["about_title"] ?: "About") },
+                text = { Text("made by Zsenike with Grok and Gemini.") },
+                confirmButton = {
+                    TextButton(onClick = { if (showAboutDialog) showAboutDialog = false }) { Text("OK") }
+                }
+            )
+        }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.Black
-    ) {
-        Scaffold(
-            containerColor = Color.Transparent,
-            bottomBar = {
-                if (!workoutDone) {
-                    NavigationBar(
-                        modifier = Modifier.height(48.dp),
-                        containerColor = Color.Black.copy(alpha = 0.4f),
-                        tonalElevation = 0.dp,
-                        windowInsets = WindowInsets(0, 0, 0, 0)
-                    ) {
-                        val navBackStackEntry by navController.currentBackStackEntryAsState()
-                        val currentDestination = navBackStackEntry?.destination
-                        
-                        val items = listOf(Screen.Workout, Screen.History)
-                        items.forEach { screen ->
-                            NavigationBarItem(
-                                icon = { Icon(screen.icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
-                                label = { Text(strings[screen.labelKey] ?: screen.labelKey, fontSize = 9.sp) },
-                                selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                                colors = NavigationBarItemDefaults.colors(
-                                    unselectedIconColor = Color.White.copy(alpha = 0.6f),
-                                    unselectedTextColor = Color.White.copy(alpha = 0.6f),
-                                    selectedIconColor = Color.White,
-                                    selectedTextColor = Color.White,
-                                    indicatorColor = Color.White.copy(alpha = 0.2f)
-                                ),
-                                onClick = {
-                                    navController.navigate(screen.route) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
+        val workoutDone by viewModel.workoutDone
+
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Black
+        ) {
+            Scaffold(
+                containerColor = Color.Transparent,
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+                bottomBar = {
+                    if (!workoutDone) {
+                        NavigationBar(
+                            modifier = Modifier.height(48.dp),
+                            containerColor = Color.Black.copy(alpha = 0.4f),
+                            tonalElevation = 0.dp,
+                            windowInsets = WindowInsets(0, 0, 0, 0)
+                        ) {
+                            val navBackStackEntry by navController.currentBackStackEntryAsState()
+                            val currentDestination = navBackStackEntry?.destination
+                            
+                            val items = listOf(Screen.Workout, Screen.History)
+                            items.forEach { screen ->
+                                NavigationBarItem(
+                                    icon = { Icon(screen.icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                                    label = { Text(strings[screen.labelKey] ?: screen.labelKey, fontSize = 9.sp) },
+                                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                                    colors = NavigationBarItemDefaults.colors(
+                                        unselectedIconColor = Color.White.copy(alpha = 0.6f),
+                                        unselectedTextColor = Color.White.copy(alpha = 0.6f),
+                                        selectedIconColor = Color.White,
+                                        selectedTextColor = Color.White,
+                                        indicatorColor = Color.White.copy(alpha = 0.2f)
+                                    ),
+                                    onClick = {
+                                        navController.navigate(screen.route) {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
                                         }
-                                        launchSingleTop = true
-                                        restoreState = true
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
-            }
-        ) { innerPadding ->
-            NavHost(
-                navController = navController, 
-                startDestination = Screen.Workout.route,
-                modifier = Modifier.padding(
-                    top = innerPadding.calculateTopPadding(),
-                    bottom = if (workoutDone) 0.dp else 48.dp
-                )
-            ) {
-                composable(Screen.Workout.route) {
-                    WorkoutScreen(
-                        strings = strings,
-                        viewModel = viewModel,
-                        onMenuClick = { menuExpanded = true },
-                        menuExpanded = menuExpanded,
-                        onMenuDismiss = { menuExpanded = false },
-                        onLanguageChange = { currentLanguage = it },
-                        onAboutClick = { showAboutDialog = true },
-                        onFinishWorkout = { _, _ ->
-                            // ViewModel already handles saving
-                        },
-                        onNavigateToHistory = {
-                            navController.navigate(Screen.History.route)
-                        }
+            ) { innerPadding ->
+                NavHost(
+                    navController = navController, 
+                    startDestination = Screen.Workout.route,
+                    modifier = Modifier.padding(
+                        top = innerPadding.calculateTopPadding(),
+                        bottom = if (workoutDone) 0.dp else 48.dp
                     )
-                }
-                composable(Screen.History.route) {
-                    HistoryScreen(
-                        strings = strings,
-                        viewModel = viewModel,
-                        onBack = { navController.popBackStack() }
-                    )
+                ) {
+                    composable(Screen.Workout.route) {
+                        WorkoutScreen(
+                            strings = strings,
+                            viewModel = viewModel,
+                            onMenuClick = { menuExpanded = true },
+                            menuExpanded = menuExpanded,
+                            onMenuDismiss = { if (menuExpanded) menuExpanded = false },
+                            onLanguageChange = { if (currentLanguage != it) currentLanguage = it },
+                            onAboutClick = { showAboutDialog = true },
+                            onCheckUpdate = {
+                                scope.launch {
+                                    val versionName = try {
+                                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.1.0"
+                                    } catch (_: Exception) { "1.1.0" }
+                                    
+                                    val result = updateManager.checkForUpdate(versionName, force = true)
+                                    if (result is UpdateResult.NewVersionAvailable) {
+                                        updateResult = result
+                                    } else if (result is UpdateResult.NoUpdate) {
+                                        snackbarHostState.showSnackbar(strings["no_update"] ?: "Already on latest version")
+                                    } else {
+                                        snackbarHostState.showSnackbar(strings["update_error"] ?: "Error checking for updates")
+                                    }
+                                }
+                            },
+                            onFinishWorkout = { _, _ ->
+                                // ViewModel already handles saving
+                            },
+                            onNavigateToHistory = {
+                                navController.navigate(Screen.History.route)
+                            }
+                        )
+                    }
+                    composable(Screen.History.route) {
+                        HistoryScreen(
+                            strings = strings,
+                            viewModel = viewModel,
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
                 }
             }
         }

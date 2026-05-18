@@ -2,4 +2,10 @@
 <resources>
 
     <style name="Theme.ReggeliRutin" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#1A120B</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.ReggeliRutin</item>
+    </style>
 </resources>
