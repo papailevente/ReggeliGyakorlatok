@@ -198,17 +198,16 @@ class WorkoutViewModel(context: Context) : ViewModel() {
     fun moveToNextExercise() {
         if (exercises.isEmpty()) return
         
-        val startIndex = currentExerciseIndex.intValue
-        var nextIndex = (startIndex + 1) % exercises.size
+        val size = exercises.size
+        val current = currentExerciseIndex.intValue
         
-        // Loop through exercises to find the first incomplete one
-        while (nextIndex != startIndex) {
-            val setsDone = if (nextIndex < currentSet.size) currentSet[nextIndex] else 0
-            if (setsDone < exercises[nextIndex].totalSets) {
-                currentExerciseIndex.intValue = nextIndex
+        for (i in 1..size) {
+            val checkIndex = (current + i) % size
+            val setsDone = if (checkIndex < currentSet.size) currentSet[checkIndex] else 0
+            if (setsDone < exercises[checkIndex].totalSets) {
+                currentExerciseIndex.intValue = checkIndex
                 return
             }
-            nextIndex = (nextIndex + 1) % exercises.size
         }
     }
 

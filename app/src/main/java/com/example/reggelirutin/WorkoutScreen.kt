@@ -371,21 +371,9 @@ fun WorkoutScreen(
                                             viewModel.pauseTotalTimer()
                                             viewModel.resetExerciseTimer()
                                             viewModel.stopRestTimer()
-                                            
-                                            val data = exercises.mapIndexed { idx, ex -> 
-                                                ex.name to currentSet[idx]
-                                            }
-                                            
-                                            scope.launch {
-                                                delay(1000)
-                                                workoutDone = true
-                                                delay(3000)
-                                                onFinishWorkout(totalTime, data)
-                                            }
+                                            // Ne legyen automatikus befejezés, csak a gomb villogjon
                                         } else {
-                                            if (currentSet[index] == exercise.totalSets) {
-                                                viewModel.moveToNextExercise()
-                                            }
+                                            viewModel.moveToNextExercise()
                                             viewModel.startRestTimer(exercise.restSeconds, index)
                                         }
                                     }

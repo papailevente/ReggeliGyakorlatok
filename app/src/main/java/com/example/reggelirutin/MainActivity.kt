@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("UnusedAssignment", "UNUSED_VALUE")
+@Suppress("UnusedAssignment", "UNUSED_VALUE", "AssignedValueIsNeverRead")
 fun ReggeliRutinApp() {
     val context = LocalContext.current
     val viewModel: WorkoutViewModel = viewModel(factory = WorkoutViewModel.Factory(context))
