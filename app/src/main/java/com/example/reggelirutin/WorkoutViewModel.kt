@@ -194,6 +194,12 @@ class WorkoutViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun clearHistory() {
+        viewModelScope.launch {
+            dao.clearAllHistory()
+        }
+    }
+
     private fun ExerciseEntity.toDomain() = Exercise(
         id = id,
         name = name,

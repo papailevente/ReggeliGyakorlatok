@@ -98,6 +98,9 @@ interface WorkoutDao {
 
     @Query("SELECT COUNT(*) FROM exercise_definitions")
     suspend fun getExerciseCount(): Int
+
+    @Query("DELETE FROM workouts")
+    suspend fun clearAllHistory()
 }
 
 @Database(

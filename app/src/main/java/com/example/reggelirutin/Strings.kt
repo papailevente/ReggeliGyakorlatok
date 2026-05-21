@@ -42,7 +42,11 @@ fun rememberStrings(language: String): Map<String, String> {
                 "later" to "Later",
                 "check_updates" to "Check for Updates",
                 "no_update" to "Already on latest version",
-                "update_error" to "Error checking for updates"
+                "update_error" to "Error checking for updates",
+                "update_title" to "Application Updated",
+                "migration_message" to "Would you like to clear your old workout history for a fresh start in this version?",
+                "clear_history" to "Clear History",
+                "keep_history" to "Keep History"
             )
             "Deutsch" -> mapOf(
                 "title" to "Morgenroutine",
@@ -79,7 +83,11 @@ fun rememberStrings(language: String): Map<String, String> {
                 "later" to "Später",
                 "check_updates" to "Nach Updates suchen",
                 "no_update" to "Bereits auf der neuesten Version",
-                "update_error" to "Fehler bei der Suche nach Updates"
+                "update_error" to "Fehler bei der Suche nach Updates",
+                "update_title" to "Anwendung aktualisiert",
+                "migration_message" to "Möchten Sie Ihren alten Trainingsverlauf löschen, um in dieser Version neu zu starten?",
+                "clear_history" to "Verlauf löschen",
+                "keep_history" to "Verlauf behalten"
             )
             else -> mapOf(
                 "title" to "Reggeli Rutin",
@@ -116,7 +124,11 @@ fun rememberStrings(language: String): Map<String, String> {
                 "later" to "Később",
                 "check_updates" to "Frissítés keresése",
                 "no_update" to "A legfrissebb verziót használod",
-                "update_error" to "Hiba a frissítés ellenőrzésekor"
+                "update_error" to "Hiba a frissítés ellenőrzésekor",
+                "update_title" to "Alkalmazás frissítve",
+                "migration_message" to "Szeretné törölni a korábbi edzés előzményeket a tiszta kezdéshez ebben a verzióban?",
+                "clear_history" to "Előzmények törlése",
+                "keep_history" to "Megtartás"
             )
         }
     }

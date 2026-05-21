@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -64,6 +65,7 @@ fun ReggeliRutinApp() {
     var menuExpanded by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
     var showFullScreenSplash by remember { mutableStateOf(true) }
+    var showMigrationDialog by remember { mutableStateOf(false) }
     
     val updateResultState = remember { mutableStateOf<UpdateResult?>(null) }
     val strings = rememberStrings(currentLanguage)
@@ -71,6 +73,19 @@ fun ReggeliRutinApp() {
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
+        val currentVersionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            try { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode } catch (_: Exception) { 0L }
+        } else {
+            @Suppress("DEPRECATION")
+            try { context.packageManager.getPackageInfo(context.packageName, 0).versionCode.toLong() } catch (_: Exception) { 0L }
+        }
+
+        val lastVersion = updateManager.lastAppVersion.first()
+        if (lastVersion != 0L && lastVersion < currentVersionCode) {
+            showMigrationDialog = true
+        }
+        updateManager.updateLastAppVersion(currentVersionCode)
+
         delay(2000)
         showFullScreenSplash = false
         
@@ -107,6 +122,27 @@ fun ReggeliRutinApp() {
             dismissButton = {
                 TextButton(onClick = { updateResultState.value = null }) {
                     Text(strings["later"] ?: "Later")
+                }
+            }
+        )
+    }
+
+    if (showMigrationDialog) {
+        AlertDialog(
+            onDismissRequest = { showMigrationDialog = false },
+            title = { Text(strings["update_title"] ?: "Application Updated") },
+            text = { Text(strings["migration_message"] ?: "Would you like to clear your old workout history for a fresh start in this version?") },
+            confirmButton = {
+                Button(onClick = { 
+                    viewModel.clearHistory()
+                    showMigrationDialog = false 
+                }) {
+                    Text(strings["clear_history"] ?: "Clear History")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showMigrationDialog = false }) {
+                    Text(strings["keep_history"] ?: "Keep History")
                 }
             }
         )
@@ -165,6 +201,9 @@ fun ReggeliRutinApp() {
                                         indicatorColor = Color.White.copy(alpha = 0.2f)
                                     ),
                                     onClick = {
+                                        if (screen == Screen.Workout) {
+                                            viewModel.startTotalTimer()
+                                        }
                                         navController.navigate(screen.route) {
                                             popUpTo(navController.graph.findStartDestination().id) {
                                                 saveState = true
@@ -212,8 +251,8 @@ fun ReggeliRutinApp() {
                                     }
                                 }
                             },
-                            onFinishWorkout = { _, _ ->
-                                // ViewModel already handles saving
+                            onFinishWorkout = { totalTime, data ->
+                                viewModel.saveWorkout(totalTime, data)
                             },
                             onNavigateToHistory = {
                                 navController.navigate(Screen.History.route)
