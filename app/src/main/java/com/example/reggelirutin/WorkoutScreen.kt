@@ -1,11 +1,12 @@
 package com.example.reggelirutin
 
 import android.app.Activity
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -53,15 +54,41 @@ fun WorkoutScreen(
     
     val exercises = viewModel.exercises
     val currentSet = viewModel.currentSet
+    val currentExerciseIndex by viewModel.currentExerciseIndex
     val scope = rememberCoroutineScope()
+
+    val totalSetsRequired = remember(exercises.size, exercises.sumOf { it.totalSets }) { 
+        exercises.sumOf { it.totalSets } 
+    }
+
+    val listState = rememberLazyListState()
+
+    val allSetsDone = remember(currentSet.toList(), totalSetsRequired) {
+        currentSet.sum() == totalSetsRequired && totalSetsRequired > 0
+    }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "FinishButtonFlash")
+    val flashingButtonColor by infiniteTransition.animateColor(
+        initialValue = Color.Blue.copy(alpha = 0.6f),
+        targetValue = Color.Red.copy(alpha = 0.6f),
+        animationSpec = infiniteRepeatable(
+            animation = tween(800),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "FinishButtonColor"
+    )
+
+    LaunchedEffect(currentExerciseIndex) {
+        if (exercises.isNotEmpty() && !workoutDone) {
+            // Scroll to item so it's roughly in the middle
+            listState.animateScrollToItem(currentExerciseIndex)
+        }
+    }
 
     var showExerciseManager by remember { mutableStateOf(false) }
     var exerciseToEdit by remember { mutableStateOf<Exercise?>(null) }
     var showLanguageMenu by remember { mutableStateOf(false) }
 
-    val totalSetsRequired = remember(exercises.size, exercises.sumOf { it.totalSets }) { 
-        exercises.sumOf { it.totalSets } 
-    }
     val setsDone = currentSet.sum()
     val progress by animateFloatAsState(
         targetValue = if (totalSetsRequired > 0) setsDone.toFloat() / totalSetsRequired.toFloat() else 0f,
@@ -319,14 +346,23 @@ fun WorkoutScreen(
                     )
 
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        contentPadding = PaddingValues(vertical = 40.dp)
                     ) {
                         itemsIndexed(exercises) { index, exercise ->
+                            val isCurrent = index == currentExerciseIndex
+                            val scale by animateFloatAsState(
+                                targetValue = if (isCurrent) 1.0f else 1.0f,
+                                label = "ExerciseScale"
+                            )
                             ExerciseItem(
                                 exercise = exercise,
                                 currentSet = if (index < currentSet.size) currentSet[index] else 0,
                                 isDone = index < currentSet.size && currentSet[index] >= exercise.totalSets,
+                                isCurrent = isCurrent,
+                                scale = scale,
                                 onSetIncrement = {
                                     if (index < currentSet.size && currentSet[index] < exercise.totalSets) {
                                         currentSet[index]++
@@ -347,6 +383,9 @@ fun WorkoutScreen(
                                                 onFinishWorkout(totalTime, data)
                                             }
                                         } else {
+                                            if (currentSet[index] == exercise.totalSets) {
+                                                viewModel.moveToNextExercise()
+                                            }
                                             viewModel.startRestTimer(exercise.restSeconds, index)
                                         }
                                     }
@@ -377,6 +416,7 @@ fun WorkoutScreen(
                                 onFinishWorkout(totalTime, data)
                             }
                         },
+                        containerColor = if (allSetsDone) flashingButtonColor else null,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)

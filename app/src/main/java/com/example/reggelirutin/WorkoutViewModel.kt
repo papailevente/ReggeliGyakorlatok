@@ -34,6 +34,7 @@ class WorkoutViewModel(context: Context) : ViewModel() {
     var exercises = mutableStateListOf<Exercise>()
     val currentSet = mutableStateListOf<Int>()
     var workoutDone = mutableStateOf(false)
+    var currentExerciseIndex = mutableIntStateOf(0)
 
     private var totalTimerJob: Job? = null
     private var exerciseTimerJob: Job? = null
@@ -191,6 +192,23 @@ class WorkoutViewModel(context: Context) : ViewModel() {
     fun saveWorkout(totalTime: Int, exerciseData: List<Pair<String, Int>>) {
         viewModelScope.launch {
             dao.saveWorkout(totalTime, exerciseData)
+        }
+    }
+
+    fun moveToNextExercise() {
+        if (exercises.isEmpty()) return
+        
+        val startIndex = currentExerciseIndex.intValue
+        var nextIndex = (startIndex + 1) % exercises.size
+        
+        // Loop through exercises to find the first incomplete one
+        while (nextIndex != startIndex) {
+            val setsDone = if (nextIndex < currentSet.size) currentSet[nextIndex] else 0
+            if (setsDone < exercises[nextIndex].totalSets) {
+                currentExerciseIndex.intValue = nextIndex
+                return
+            }
+            nextIndex = (nextIndex + 1) % exercises.size
         }
     }
 

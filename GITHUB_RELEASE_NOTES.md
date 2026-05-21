@@ -1,21 +1,14 @@
-# MorningRoutine v1.1.2 🚀
+# MorningRoutine v1.1.5 🚀
 
-This version introduces the official rebranding to **MorningRoutine**, along with a high-resolution icon and critical stability fixes.
+This version refines the workout experience with improved navigation and visual consistency.
 
 ## ✨ Highlights
-*   **Official Rebrand**: Renamed from "Reggeli Rutin" to **MorningRoutine**.
-*   **New Visuals**: Integrated a high-resolution (512x512) adaptive application icon.
-*   **Startup Experience**: Smoother transition between the Android system splash and the app's custom splash screen.
+*   **UI Refinement**: Removed card scaling for a more stable list view while maintaining clear highlighting (yellow text & background) for the active exercise.
+*   **Enhanced Navigation**: Improved the auto-scrolling and exercise switching flow.
 
-## 🛠 Bug Fixes & Technical Improvements
-*   **Database Fix**: Resolved a critical `IllegalStateException` during Room database migration (v1 -> v2).
-*   **Data Integrity**: Added a migration path to preserve user data while ensuring app stability with a destructive migration fallback.
-*   **Code Quality**: Cleaned up `MainActivity.kt`, resolving several IDE warnings, improving smart casts, and optimizing update check logic.
-*   **Modern Android Support**: Full compatibility with Android 12+ adaptive and themed icons.
-
-## 📦 Downloads
-*   **Build**: v1.1.2 (Version Code: 8)
-*   **Filename**: `MorningRoutine-v1.1.2.apk`
+## 🛠 Improvements
+*   **Version Update**: Bumped to v1.1.5 (Build 11).
+*   **Cleaner Layout**: Better spacing and alignment in the workout screen.
 
 ---
 *Made by Zsenike with Grok and Gemini.*

@@ -78,12 +78,13 @@ fun RutinButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isActive: Boolean = false,
+    containerColor: Color? = null,
     content: @Composable RowScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     
-    val containerColor = if (isPressed || isActive) {
+    val finalContainerColor = containerColor ?: if (isPressed || isActive) {
         MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
     } else {
         MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
@@ -94,7 +95,7 @@ fun RutinButton(
         modifier = modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
         interactionSource = interactionSource,
         colors = ButtonDefaults.filledTonalButtonColors(
-            containerColor = containerColor,
+            containerColor = finalContainerColor,
             contentColor = Color.White
         ),
         shape = RoundedCornerShape(8.dp),
@@ -110,27 +111,42 @@ fun ExerciseItem(
     isDone: Boolean,
     onSetIncrement: () -> Unit,
     onSetDecrement: () -> Unit,
-    strings: Map<String, String>
+    strings: Map<String, String>,
+    isCurrent: Boolean = false,
+    scale: Float = 1f
 ) {
-    val containerColor = if (isDone) {
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-    } else {
-        Color.Black.copy(alpha = 0.3f)
+    val containerColor = when {
+        isCurrent -> MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+        isDone -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+        else -> Color.Black.copy(alpha = 0.3f)
     }
 
     OutlinedCard(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = if (isCurrent) 12.dp else 6.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
         colors = CardDefaults.outlinedCardColors(containerColor = containerColor),
-        border = CardDefaults.outlinedCardBorder().copy(brush = Brush.linearGradient(listOf(Color.White.copy(alpha = 0.1f), Color.White.copy(alpha = 0.05f)))),
+        border = CardDefaults.outlinedCardBorder().copy(
+            brush = Brush.linearGradient(
+                listOf(
+                    if (isCurrent) Color.Yellow.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.1f),
+                    Color.White.copy(alpha = 0.05f)
+                )
+            )
+        ),
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f).padding(start = 4.dp)) {
                 Text(
                     text = exercise.name,
-                    fontSize = 17.sp,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                    color = Color.White
+                    fontSize = if (isCurrent) 19.sp else 17.sp,
+                    fontWeight = if (isCurrent) androidx.compose.ui.text.font.FontWeight.ExtraBold else androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    color = if (isCurrent) Color(0xFFFFEB3B) else Color.White
                 )
                 Text(
                     text = exercise.description,
