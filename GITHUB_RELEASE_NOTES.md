@@ -1,13 +1,16 @@
-# MorningRoutine v1.1.7 🚀
+# MorningRoutine v1.2.0 🚀
 
-This version gives you full control over when to end your session.
+This is a major update introducing the **Weekly Planner** feature!
 
 ## ✨ Highlights
-*   **Manual Completion**: Tapping the last set won't kick you out! The "Finish Workout" button will flash, and the app will wait for your final confirmation.
-*   **Better Feedback**: Clearer visual signal when all tasks are done.
+*   **Daily Exercise Sets**: Customize your workout for every day of the week.
+*   **Intuitive Day Selector**: Quickly switch between days using the new tab bar.
+*   **Automatic Detection**: The app opens to your current day by default.
 
 ## 🛠 Improvements
-*   **Version Update**: Bumped to v1.1.7 (Build 13).
+*   **Database Upgrade**: Version 3 schema with migration support.
+*   **Version Update**: Bumped to v1.2.0 (Build 14).
+*   **UI Tweaks**: Refined list spacing and tab indicators.
 
 ---
 *Made by Zsenike with Grok and Gemini.*

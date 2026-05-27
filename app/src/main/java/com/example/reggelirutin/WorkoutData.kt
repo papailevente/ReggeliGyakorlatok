@@ -13,7 +13,8 @@ data class Exercise(
     val setsReps: String,
     val totalSets: Int = 4,
     val restSeconds: Int = 60,
-    val orderIndex: Int = 0
+    val orderIndex: Int = 0,
+    val dayOfWeek: Int = 0 // 0 means every day, 1-7 means Mon-Sun
 )
 
 @Entity(tableName = "workouts")
@@ -50,7 +51,8 @@ data class ExerciseEntity(
     val setsReps: String,
     val totalSets: Int,
     val restSeconds: Int = 60,
-    val orderIndex: Int = 0
+    val orderIndex: Int = 0,
+    val dayOfWeek: Int = 0
 )
 
 data class WorkoutWithResults(
@@ -84,6 +86,9 @@ interface WorkoutDao {
     }
 
     // Exercise Definition Management
+    @Query("SELECT * FROM exercise_definitions WHERE dayOfWeek = :day OR dayOfWeek = 0 ORDER BY orderIndex ASC")
+    fun getExerciseDefinitionsForDay(day: Int): Flow<List<ExerciseEntity>>
+
     @Query("SELECT * FROM exercise_definitions ORDER BY orderIndex ASC")
     fun getAllExerciseDefinitions(): Flow<List<ExerciseEntity>>
 
@@ -105,7 +110,7 @@ interface WorkoutDao {
 
 @Database(
     entities = [WorkoutEntity::class, ExerciseResultEntity::class, ExerciseEntity::class], 
-    version = 2, 
+    version = 3, 
     exportSchema = false
 )
 abstract class WorkoutDatabase : RoomDatabase() {
@@ -117,13 +122,13 @@ abstract class WorkoutDatabase : RoomDatabase() {
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(connection: SQLiteConnection) {
-                // Új tábla létrehozása, ha még nem létezett
                 connection.execSQL("CREATE TABLE IF NOT EXISTS `exercise_definitions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `setsReps` TEXT NOT NULL, `totalSets` INTEGER NOT NULL, `restSeconds` INTEGER NOT NULL, `orderIndex` INTEGER NOT NULL)")
-                
-                // Opcionális: Ha a tábla már létezett, de új oszlopok kerültek bele (pl. restSeconds, orderIndex)
-                // SQLite-ban nincs "ADD COLUMN IF NOT EXISTS", ezért ha biztos benne, hogy ezek újak, akkor:
-                // connection.execSQL("ALTER TABLE `exercise_definitions` ADD COLUMN `restSeconds` INTEGER NOT NULL DEFAULT 60")
-                // connection.execSQL("ALTER TABLE `exercise_definitions` ADD COLUMN `orderIndex` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("ALTER TABLE `exercise_definitions` ADD COLUMN `dayOfWeek` INTEGER NOT NULL DEFAULT 0")
             }
         }
 
@@ -134,8 +139,8 @@ abstract class WorkoutDatabase : RoomDatabase() {
                     WorkoutDatabase::class.java,
                     "workout_database"
                 )
-                .addMigrations(MIGRATION_1_2)
-                .fallbackToDestructiveMigration(true) // Ha a migráció nem sikerül, törli és újratölti
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .fallbackToDestructiveMigration(true)
                 .build()
                 INSTANCE = instance
                 instance

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -35,6 +36,9 @@ class WorkoutViewModel(context: Context) : ViewModel() {
     val currentSet = mutableStateListOf<Int>()
     var workoutDone = mutableStateOf(false)
     var currentExerciseIndex = mutableIntStateOf(0)
+    var selectedDay = mutableIntStateOf(java.util.Calendar.getInstance().get(java.util.Calendar.DAY_OF_WEEK).let { 
+        if (it == java.util.Calendar.SUNDAY) 7 else it - 1 // Convert to 1-7 (Mon-Sun)
+    })
 
     private var totalTimerJob: Job? = null
     private var exerciseTimerJob: Job? = null
@@ -47,15 +51,20 @@ class WorkoutViewModel(context: Context) : ViewModel() {
                 seedDatabase()
             }
             
-            // Listen to exercise definitions
-            dao.getAllExerciseDefinitions().collectLatest { entities ->
-                exercises.clear()
-                exercises.addAll(entities.map { it.toDomain() })
-                
-                // Synchronize sets Done list
-                if (currentSet.size != exercises.size) {
-                    currentSet.clear()
-                    currentSet.addAll(List(exercises.size) { 0 })
+            // Listen to exercise definitions for the selected day
+            snapshotFlow { selectedDay.intValue }.collectLatest { day ->
+                dao.getExerciseDefinitionsForDay(day).collectLatest { entities ->
+                    exercises.clear()
+                    exercises.addAll(entities.map { it.toDomain() })
+                    
+                    // Synchronize sets Done list
+                    if (currentSet.size != exercises.size) {
+                        currentSet.clear()
+                        currentSet.addAll(List(exercises.size) { 0 })
+                    }
+                    
+                    // Reset progress if day changes
+                    currentExerciseIndex.intValue = 0
                 }
             }
         }
@@ -82,7 +91,8 @@ class WorkoutViewModel(context: Context) : ViewModel() {
                 description = desc,
                 setsReps = reps,
                 totalSets = sets,
-                orderIndex = exercises.size
+                orderIndex = exercises.size,
+                dayOfWeek = selectedDay.intValue
             ))
         }
     }
@@ -224,7 +234,8 @@ class WorkoutViewModel(context: Context) : ViewModel() {
         setsReps = setsReps,
         totalSets = totalSets,
         restSeconds = restSeconds,
-        orderIndex = orderIndex
+        orderIndex = orderIndex,
+        dayOfWeek = dayOfWeek
     )
 
     private fun Exercise.toEntity() = ExerciseEntity(
@@ -234,7 +245,8 @@ class WorkoutViewModel(context: Context) : ViewModel() {
         setsReps = setsReps,
         totalSets = totalSets,
         restSeconds = restSeconds,
-        orderIndex = orderIndex
+        orderIndex = orderIndex,
+        dayOfWeek = dayOfWeek
     )
 
     class Factory(private val context: Context) : ViewModelProvider.Factory {

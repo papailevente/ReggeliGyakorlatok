@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -337,6 +338,36 @@ fun WorkoutScreen(
                     }
 
                     Spacer(Modifier.height(24.dp))
+
+                    // Day Selector
+                    ScrollableTabRow(
+                        selectedTabIndex = viewModel.selectedDay.intValue - 1,
+                        containerColor = Color.Transparent,
+                        contentColor = Color.Yellow,
+                        edgePadding = 0.dp,
+                        divider = {},
+                        indicator = { tabPositions ->
+                            TabRowDefaults.SecondaryIndicator(
+                                modifier = Modifier.tabIndicatorOffset(tabPositions[viewModel.selectedDay.intValue - 1]),
+                                color = Color.Yellow
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    ) {
+                        (1..7).forEach { day ->
+                            Tab(
+                                selected = viewModel.selectedDay.intValue == day,
+                                onClick = { viewModel.selectedDay.intValue = day },
+                                text = { 
+                                    Text(
+                                        text = strings["day_$day"] ?: day.toString(),
+                                        fontSize = 14.sp,
+                                        fontWeight = if (viewModel.selectedDay.intValue == day) FontWeight.Bold else FontWeight.Normal
+                                    ) 
+                                }
+                            )
+                        }
+                    }
 
                     Text(
                         text = strings["exercises"]!!, 

@@ -46,7 +46,8 @@ fun rememberStrings(language: String): Map<String, String> {
                 "update_title" to "Application Updated",
                 "migration_message" to "Would you like to clear your old workout history for a fresh start in this version?",
                 "clear_history" to "Clear History",
-                "keep_history" to "Keep History"
+                "keep_history" to "Keep History",
+                "day_1" to "Mon", "day_2" to "Tue", "day_3" to "Wed", "day_4" to "Thu", "day_5" to "Fri", "day_6" to "Sat", "day_7" to "Sun"
             )
             "Deutsch" -> mapOf(
                 "title" to "Morgenroutine",
@@ -87,7 +88,8 @@ fun rememberStrings(language: String): Map<String, String> {
                 "update_title" to "Anwendung aktualisiert",
                 "migration_message" to "Möchten Sie Ihren alten Trainingsverlauf löschen, um in dieser Version neu zu starten?",
                 "clear_history" to "Verlauf löschen",
-                "keep_history" to "Verlauf behalten"
+                "keep_history" to "Verlauf behalten",
+                "day_1" to "Mo", "day_2" to "Di", "day_3" to "Mi", "day_4" to "Do", "day_5" to "Fr", "day_6" to "Sa", "day_7" to "So"
             )
             else -> mapOf(
                 "title" to "Reggeli Rutin",
@@ -128,7 +130,8 @@ fun rememberStrings(language: String): Map<String, String> {
                 "update_title" to "Alkalmazás frissítve",
                 "migration_message" to "Szeretné törölni a korábbi edzés előzményeket a tiszta kezdéshez ebben a verzióban?",
                 "clear_history" to "Előzmények törlése",
-                "keep_history" to "Megtartás"
+                "keep_history" to "Megtartás",
+                "day_1" to "H", "day_2" to "K", "day_3" to "Sze", "day_4" to "Cs", "day_5" to "P", "day_6" to "Szo", "day_7" to "V"
             )
         }
     }
