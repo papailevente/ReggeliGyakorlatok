@@ -16,6 +16,9 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
@@ -524,6 +527,29 @@ fun ExerciseManagerDialog(
 }
 
 @Composable
+fun DayChip(label: String, isSelected: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        color = if (isSelected) Color.Black.copy(alpha = 0.6f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        border = if (isSelected) BorderStroke(1.dp, Color.Yellow.copy(alpha = 0.5f)) else null,
+        modifier = Modifier.padding(2.dp)
+    ) {
+        Box(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                color = if (isSelected) Color.Yellow else Color.White
+            )
+        }
+    }
+}
+
+@Composable
 fun ExerciseEditDialog(
     strings: Map<String, String>,
     exercise: Exercise,
@@ -534,6 +560,7 @@ fun ExerciseEditDialog(
     var description by remember { mutableStateOf(exercise.description) }
     var reps by remember { mutableStateOf(exercise.setsReps) }
     var sets by remember { mutableStateOf(exercise.totalSets.toString()) }
+    var selectedDay by remember { mutableStateOf(exercise.dayOfWeek) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -544,6 +571,29 @@ fun ExerciseEditDialog(
                 OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text(strings["description"] ?: "Description") })
                 OutlinedTextField(value = reps, onValueChange = { reps = it }, label = { Text(strings["reps"] ?: "Reps") })
                 OutlinedTextField(value = sets, onValueChange = { sets = it }, label = { Text(strings["sets_count"] ?: "Sets") })
+                
+                Spacer(Modifier.height(8.dp))
+                Text(text = strings["select_day"] ?: "Active on:", style = MaterialTheme.typography.labelLarge)
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    // Option for "Every Day"
+                    DayChip(
+                        label = "∞", // Infinity or "All"
+                        isSelected = selectedDay == 0,
+                        onClick = { selectedDay = 0 }
+                    )
+                    
+                    (1..7).forEach { day ->
+                        DayChip(
+                            label = strings["day_$day"] ?: day.toString(),
+                            isSelected = selectedDay == day,
+                            onClick = { selectedDay = day }
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
@@ -552,7 +602,8 @@ fun ExerciseEditDialog(
                     name = name, 
                     description = description, 
                     setsReps = reps, 
-                    totalSets = sets.toIntOrNull() ?: 1
+                    totalSets = sets.toIntOrNull() ?: 1,
+                    dayOfWeek = selectedDay
                 )) 
             }) {
                 Text(strings["save"] ?: "Save")
