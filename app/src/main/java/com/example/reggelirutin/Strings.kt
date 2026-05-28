@@ -48,7 +48,15 @@ fun rememberStrings(language: String): Map<String, String> {
                 "clear_history" to "Clear History",
                 "keep_history" to "Keep History",
                 "select_day" to "Active on:",
-                "day_1" to "Mon", "day_2" to "Tue", "day_3" to "Wed", "day_4" to "Thu", "day_5" to "Fri", "day_6" to "Sat", "day_7" to "Sun"
+                "day_1" to "Mon", "day_2" to "Tue", "day_3" to "Wed", "day_4" to "Thu", "day_5" to "Fri", "day_6" to "Sat", "day_7" to "Sun",
+                "mode_normal" to "Normal",
+                "mode_extra" to "Extra",
+                "select_mode" to "Choose Mode",
+                "groups" to "Exercise Groups",
+                "add_group" to "Add Group",
+                "edit_group" to "Edit Group",
+                "group_name" to "Group Name",
+                "all_groups" to "All Groups"
             )
             "Deutsch" -> mapOf(
                 "title" to "Morgenroutine",
@@ -91,7 +99,15 @@ fun rememberStrings(language: String): Map<String, String> {
                 "clear_history" to "Verlauf löschen",
                 "keep_history" to "Verlauf behalten",
                 "select_day" to "Aktiv am:",
-                "day_1" to "Mo", "day_2" to "Di", "day_3" to "Mi", "day_4" to "Do", "day_5" to "Fr", "day_6" to "Sa", "day_7" to "So"
+                "day_1" to "Mo", "day_2" to "Di", "day_3" to "Mi", "day_4" to "Do", "day_5" to "Fr", "day_6" to "Sa", "day_7" to "So",
+                "mode_normal" to "Normal",
+                "mode_extra" to "Extra",
+                "select_mode" to "Modus wählen",
+                "groups" to "Gyakorlat csoportok",
+                "add_group" to "Csoport hozzáadása",
+                "edit_group" to "Csoport szerkesztése",
+                "group_name" to "Csoport neve",
+                "all_groups" to "Összes csoport"
             )
             else -> mapOf(
                 "title" to "Reggeli Rutin",
@@ -134,7 +150,15 @@ fun rememberStrings(language: String): Map<String, String> {
                 "clear_history" to "Előzmények törlése",
                 "keep_history" to "Megtartás",
                 "select_day" to "Aktív nap:",
-                "day_1" to "H", "day_2" to "K", "day_3" to "Sze", "day_4" to "Cs", "day_5" to "P", "day_6" to "Szo", "day_7" to "V"
+                "day_1" to "H", "day_2" to "K", "day_3" to "Sze", "day_4" to "Cs", "day_5" to "P", "day_6" to "Szo", "day_7" to "V",
+                "mode_normal" to "Normál",
+                "mode_extra" to "Extra",
+                "select_mode" to "Válassz módot",
+                "groups" to "Gyakorlat csoportok",
+                "add_group" to "Csoport hozzáadása",
+                "edit_group" to "Csoport szerkesztése",
+                "group_name" to "Csoport neve",
+                "all_groups" to "Összes csoport"
             )
         }
     }

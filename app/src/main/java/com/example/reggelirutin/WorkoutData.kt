@@ -6,6 +6,10 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.flow.Flow
 
+enum class AppMode {
+    None, Normal, Extra
+}
+
 data class Exercise(
     val id: Long = 0,
     val name: String,
@@ -14,7 +18,16 @@ data class Exercise(
     val totalSets: Int = 4,
     val restSeconds: Int = 60,
     val orderIndex: Int = 0,
-    val dayOfWeek: Int = 0 // 0 means every day, 1-7 means Mon-Sun
+    val dayOfWeek: Int = 0, // 0 means every day, 1-7 means Mon-Sun
+    val groupId: Long = 0 // 0 means default/Normal group
+)
+
+@Entity(tableName = "exercise_groups")
+data class ExerciseGroupEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val dayOfWeek: Int = 0,
+    val orderIndex: Int = 0
 )
 
 @Entity(tableName = "workouts")
@@ -52,7 +65,8 @@ data class ExerciseEntity(
     val totalSets: Int,
     val restSeconds: Int = 60,
     val orderIndex: Int = 0,
-    val dayOfWeek: Int = 0
+    val dayOfWeek: Int = 0,
+    val groupId: Long = 0
 )
 
 data class WorkoutWithResults(
@@ -89,6 +103,9 @@ interface WorkoutDao {
     @Query("SELECT * FROM exercise_definitions WHERE dayOfWeek = :day OR dayOfWeek = 0 ORDER BY orderIndex ASC")
     fun getExerciseDefinitionsForDay(day: Int): Flow<List<ExerciseEntity>>
 
+    @Query("SELECT * FROM exercise_definitions WHERE groupId = :groupId AND (dayOfWeek = :day OR dayOfWeek = 0) ORDER BY orderIndex ASC")
+    fun getExerciseDefinitionsForGroup(groupId: Long, day: Int): Flow<List<ExerciseEntity>>
+
     @Query("SELECT * FROM exercise_definitions ORDER BY orderIndex ASC")
     fun getAllExerciseDefinitions(): Flow<List<ExerciseEntity>>
 
@@ -101,6 +118,22 @@ interface WorkoutDao {
     @Delete
     suspend fun deleteExerciseDefinition(exercise: ExerciseEntity)
 
+    // Group Management
+    @Query("SELECT * FROM exercise_groups ORDER BY orderIndex ASC")
+    fun getAllGroups(): Flow<List<ExerciseGroupEntity>>
+
+    @Query("SELECT * FROM exercise_groups WHERE dayOfWeek = :day OR dayOfWeek = 0 ORDER BY orderIndex ASC")
+    fun getGroupsForDay(day: Int): Flow<List<ExerciseGroupEntity>>
+
+    @Insert
+    suspend fun insertGroup(group: ExerciseGroupEntity): Long
+
+    @Update
+    suspend fun updateGroup(group: ExerciseGroupEntity)
+
+    @Delete
+    suspend fun deleteGroup(group: ExerciseGroupEntity)
+
     @Query("SELECT COUNT(*) FROM exercise_definitions")
     suspend fun getExerciseCount(): Int
 
@@ -109,8 +142,8 @@ interface WorkoutDao {
 }
 
 @Database(
-    entities = [WorkoutEntity::class, ExerciseResultEntity::class, ExerciseEntity::class], 
-    version = 3, 
+    entities = [WorkoutEntity::class, ExerciseResultEntity::class, ExerciseEntity::class, ExerciseGroupEntity::class], 
+    version = 4, 
     exportSchema = false
 )
 abstract class WorkoutDatabase : RoomDatabase() {
@@ -132,6 +165,13 @@ abstract class WorkoutDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `exercise_groups` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `dayOfWeek` INTEGER NOT NULL DEFAULT 0, `orderIndex` INTEGER NOT NULL DEFAULT 0)")
+                connection.execSQL("ALTER TABLE `exercise_definitions` ADD COLUMN `groupId` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         fun getDatabase(context: android.content.Context): WorkoutDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -139,7 +179,7 @@ abstract class WorkoutDatabase : RoomDatabase() {
                     WorkoutDatabase::class.java,
                     "workout_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .fallbackToDestructiveMigration(true)
                 .build()
                 INSTANCE = instance

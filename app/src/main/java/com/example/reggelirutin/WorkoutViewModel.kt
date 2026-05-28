@@ -40,6 +40,12 @@ class WorkoutViewModel(context: Context) : ViewModel() {
         if (it == java.util.Calendar.SUNDAY) 7 else it - 1 // Convert to 1-7 (Mon-Sun)
     })
 
+    // Mode and Group Management
+    var currentMode = mutableStateOf<AppMode>(AppMode.None)
+    var selectedGroupId = mutableStateOf<Long?>(null)
+    var exerciseGroups = mutableStateListOf<ExerciseGroupEntity>()
+    var allGroups = mutableStateListOf<ExerciseGroupEntity>()
+
     private var totalTimerJob: Job? = null
     private var exerciseTimerJob: Job? = null
     private var restTimerJob: Job? = null
@@ -51,9 +57,34 @@ class WorkoutViewModel(context: Context) : ViewModel() {
                 seedDatabase()
             }
             
-            // Listen to exercise definitions for the selected day
-            snapshotFlow { selectedDay.intValue }.collectLatest { day ->
-                dao.getExerciseDefinitionsForDay(day).collectLatest { entities ->
+            // Listen to all groups
+            launch {
+                dao.getAllGroups().collectLatest { groups ->
+                    allGroups.clear()
+                    allGroups.addAll(groups)
+                }
+            }
+            
+            // Listen to groups for the selected day
+            launch {
+                snapshotFlow { selectedDay.intValue }.collectLatest { day ->
+                    dao.getGroupsForDay(day).collectLatest { groups ->
+                        exerciseGroups.clear()
+                        exerciseGroups.addAll(groups)
+                    }
+                }
+            }
+
+            // Listen to exercise definitions based on mode and group
+            snapshotFlow { 
+                Triple(selectedDay.intValue, currentMode.value, selectedGroupId.value) 
+            }.collectLatest { (day, mode, groupId) ->
+                val flow = when {
+                    mode == AppMode.Extra && groupId != null -> dao.getExerciseDefinitionsForGroup(groupId, day)
+                    else -> dao.getExerciseDefinitionsForDay(day)
+                }
+
+                flow.collectLatest { entities ->
                     exercises.clear()
                     exercises.addAll(entities.map { it.toDomain() })
                     
@@ -63,7 +94,7 @@ class WorkoutViewModel(context: Context) : ViewModel() {
                         currentSet.addAll(List(exercises.size) { 0 })
                     }
                     
-                    // Reset progress if day changes
+                    // Reset progress if criteria changes
                     currentExerciseIndex.intValue = 0
                 }
             }
@@ -92,8 +123,31 @@ class WorkoutViewModel(context: Context) : ViewModel() {
                 setsReps = reps,
                 totalSets = sets,
                 orderIndex = exercises.size,
-                dayOfWeek = selectedDay.intValue
+                dayOfWeek = selectedDay.intValue,
+                groupId = selectedGroupId.value ?: 0
             ))
+        }
+    }
+
+    fun addGroup(name: String) {
+        viewModelScope.launch {
+            dao.insertGroup(ExerciseGroupEntity(
+                name = name,
+                dayOfWeek = selectedDay.intValue,
+                orderIndex = exerciseGroups.size
+            ))
+        }
+    }
+
+    fun updateGroup(group: ExerciseGroupEntity) {
+        viewModelScope.launch {
+            dao.updateGroup(group)
+        }
+    }
+
+    fun deleteGroup(group: ExerciseGroupEntity) {
+        viewModelScope.launch {
+            dao.deleteGroup(group)
         }
     }
 
@@ -235,7 +289,8 @@ class WorkoutViewModel(context: Context) : ViewModel() {
         totalSets = totalSets,
         restSeconds = restSeconds,
         orderIndex = orderIndex,
-        dayOfWeek = dayOfWeek
+        dayOfWeek = dayOfWeek,
+        groupId = groupId
     )
 
     private fun Exercise.toEntity() = ExerciseEntity(
@@ -246,7 +301,8 @@ class WorkoutViewModel(context: Context) : ViewModel() {
         totalSets = totalSets,
         restSeconds = restSeconds,
         orderIndex = orderIndex,
-        dayOfWeek = dayOfWeek
+        dayOfWeek = dayOfWeek,
+        groupId = groupId
     )
 
     class Factory(private val context: Context) : ViewModelProvider.Factory {

@@ -4,6 +4,8 @@ A modern, professional fitness tracking application built with **Kotlin** and **
 
 ## Features 🚀
 
+- **Custom Exercise Groups**: Organize your workout into logical segments (e.g., Upper Body, Cardio, etc.).
+- **Workout Modes**: Choose between **Normal** (full day routine) and **Extra** (select a specific group to focus on).
 - **Dynamic Sunrise Animation**: The background features a rising sun that tracks your workout progress. Start in the dark and finish in the bright daylight!
 - **Intelligent Timers**:
     - **Total Workout Timer**: Track your overall session duration.
@@ -34,6 +36,17 @@ A modern, professional fitness tracking application built with **Kotlin** and **
 - **DI/Build System**: Gradle 9.x with Version Catalogs (.toml)
 
 ## Changelog 📝
+
+### v1.3.0
+- **Exercise Groups**: Organize exercises into custom categories for more focused workouts.
+- **Normal & Extra Modes**: Choose between a full daily routine or selecting a specific group.
+- **Improved Management**: Dedicated UI for managing groups and assigning exercises to them.
+- **Database v4**: Migrated to support the new group-based data structure.
+
+### v1.2.0
+- **Weekly Planner**: Introduction of daily exercise sets. Customize your routine for each day of the week.
+- **Day Selector UI**: New tab-based interface for switching between different days.
+- **Smart Detection**: App automatically opens to the current day of the week.
 
 ### v1.1.0
 - **New Splash Screen**: Added a modern, themed splash screen with a custom logo for a more professional app start experience.
