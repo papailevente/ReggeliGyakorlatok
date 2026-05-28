@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -38,6 +37,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("AssignedValueIsNeverRead", "UNUSED_VALUE")
 fun WorkoutScreen(
     strings: Map<String, String>,
     viewModel: WorkoutViewModel,
@@ -68,7 +68,6 @@ fun WorkoutScreen(
     val exercises = viewModel.exercises
     val currentSet = viewModel.currentSet
     val currentExerciseIndex by viewModel.currentExerciseIndex
-    val scope = rememberCoroutineScope()
 
     val totalSetsRequired = remember(exercises.size, exercises.sumOf { it.totalSets }) { 
         exercises.sumOf { it.totalSets } 
@@ -125,7 +124,7 @@ fun WorkoutScreen(
             onDismiss = { showExerciseManager = false },
             onAdd = { exerciseToEdit = Exercise(name = "", description = "", setsReps = "", totalSets = 3, groupId = viewModel.selectedGroupId.value ?: 0) },
             onEdit = { exerciseToEdit = it },
-            onDelete = { viewModel.deleteExercise(it) }
+            onDelete = viewModel::deleteExercise
         )
     }
 
@@ -133,7 +132,6 @@ fun WorkoutScreen(
         GroupManagerDialog(
             strings = strings,
             groups = viewModel.exerciseGroups,
-            viewModel = viewModel,
             onDismiss = { showGroupManager = false },
             onAdd = { groupToEdit = ExerciseGroupEntity(name = "") },
             onEdit = { groupToEdit = it },
@@ -685,7 +683,6 @@ fun ExerciseManagerDialog(
 fun GroupManagerDialog(
     strings: Map<String, String>,
     groups: List<ExerciseGroupEntity>,
-    viewModel: WorkoutViewModel,
     onDismiss: () -> Unit,
     onAdd: () -> Unit,
     onEdit: (ExerciseGroupEntity) -> Unit,
@@ -730,7 +727,7 @@ fun GroupEditDialog(
     onSave: (ExerciseGroupEntity) -> Unit
 ) {
     var name by remember { mutableStateOf(group.name) }
-    var selectedDay by remember { mutableStateOf(group.dayOfWeek) }
+    var selectedDay by remember { mutableIntStateOf(group.dayOfWeek) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -783,8 +780,8 @@ fun ExerciseEditDialog(
     var description by remember { mutableStateOf(exercise.description) }
     var reps by remember { mutableStateOf(exercise.setsReps) }
     var sets by remember { mutableStateOf(exercise.totalSets.toString()) }
-    var selectedDay by remember { mutableStateOf(exercise.dayOfWeek) }
-    var selectedGroupId by remember { mutableStateOf(exercise.groupId) }
+    var selectedDay by remember { mutableIntStateOf(exercise.dayOfWeek) }
+    var selectedGroupId by remember { mutableLongStateOf(exercise.groupId) }
     var expanded by remember { mutableStateOf(false) }
 
     AlertDialog(

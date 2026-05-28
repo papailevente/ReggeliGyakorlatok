@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.example.reggelirutin"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.example.reggelirutin"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 17
         versionName = "1.3.1"
         base.archivesName.set("MorningRoutine")
@@ -28,7 +28,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             signingConfig = signingConfigs.getByName("debug")
         }
@@ -47,7 +47,7 @@ android {
     applicationVariants.all {
         outputs.all {
             val output = this as com.android.build.gradle.internal.api.ApkVariantOutputImpl
-            output.outputFileName = "MorningRoutine-v${versionName}.apk"
+            output.outputFileName = "MorningRoutine-v$versionName.apk"
         }
     }
 }
