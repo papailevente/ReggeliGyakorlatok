@@ -88,10 +88,15 @@ fun ReggeliRutinApp() {
 
         delay(2000)
         showFullScreenSplash = false
+
+        // Check for Showcase trigger
+        if (!viewModel.isShowcaseDismissed.value) {
+            viewModel.showcaseStep.intValue = 0
+        }
         
         // Auto check for update
         val versionName = try {
-            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.0"
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.1"
         } catch (_: Exception) { "1.0.0" }
         
         val result = updateManager.checkForUpdate(versionName)
@@ -108,7 +113,7 @@ fun ReggeliRutinApp() {
             text = { 
                 val currentVersion = try {
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName
-                } catch (_: Exception) { "1.3.0" }
+                } catch (_: Exception) { "1.3.1" }
                 Text("${strings["new_version"] ?: "New version"}: v${currentUpdateResult.version}\n${strings["current_version"] ?: "Current version"}: v$currentVersion") 
             },
             confirmButton = {
@@ -235,8 +240,8 @@ fun ReggeliRutinApp() {
                             onCheckUpdate = {
                                 scope.launch {
                                     val versionName = try {
-                                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.0"
-                                    } catch (_: Exception) { "1.3.0" }
+                                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.1"
+                                    } catch (_: Exception) { "1.3.1" }
                                     
                                     when (val result = updateManager.checkForUpdate(versionName, force = true)) {
                                         is UpdateResult.NewVersionAvailable -> {

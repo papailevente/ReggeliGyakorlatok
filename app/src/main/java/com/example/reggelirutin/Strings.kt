@@ -56,7 +56,16 @@ fun rememberStrings(language: String): Map<String, String> {
                 "add_group" to "Add Group",
                 "edit_group" to "Edit Group",
                 "group_name" to "Group Name",
-                "all_groups" to "All Groups"
+                "all_groups" to "All Groups",
+                "showcase_welcome" to "Welcome to the new version!",
+                "showcase_modes" to "Choose Normal for your daily routine or Extra to focus on a specific group.",
+                "showcase_days" to "You can switch between days here. Every day can have different exercises.",
+                "showcase_timers" to "Track your total workout time and individual exercise/rest times here.",
+                "showcase_exercises" to "Click on a set to mark it as done. The app will automatically guide you to the next set.",
+                "showcase_finish" to "When you're done with everything, click here to save your workout.",
+                "showcase_menu" to "Use the menu to manage your exercises, groups, or change the language.",
+                "next" to "Next",
+                "got_it" to "Got it"
             )
             "Deutsch" -> mapOf(
                 "title" to "Morgenroutine",
@@ -107,7 +116,16 @@ fun rememberStrings(language: String): Map<String, String> {
                 "add_group" to "Csoport hozzáadása",
                 "edit_group" to "Csoport szerkesztése",
                 "group_name" to "Csoport neve",
-                "all_groups" to "Összes csoport"
+                "all_groups" to "Összes csoport",
+                "showcase_welcome" to "Willkommen in der neuen Version!",
+                "showcase_modes" to "Wählen Sie 'Normal' für Ihre Routine oder 'Extra' für eine bestimmte Gruppe.",
+                "showcase_days" to "Hier können Sie zwischen den Tagen wechseln. Jeder Tag hat eigene Übungen.",
+                "showcase_timers" to "Hier sehen Sie die Gesamtzeit und die Zeit für Übungen/Pausen.",
+                "showcase_exercises" to "Klicken Sie auf einen Satz, um ihn abzuschließen. Die App führt Sie automatisch weiter.",
+                "showcase_finish" to "Wenn Sie fertig sind, klicken Sie hier, um das Training zu speichern.",
+                "showcase_menu" to "Nutzen Sie das Menü, um Übungen und Gruppen zu verwalten.",
+                "next" to "Weiter",
+                "got_it" to "Verstanden"
             )
             else -> mapOf(
                 "title" to "Reggeli Rutin",
@@ -158,7 +176,16 @@ fun rememberStrings(language: String): Map<String, String> {
                 "add_group" to "Csoport hozzáadása",
                 "edit_group" to "Csoport szerkesztése",
                 "group_name" to "Csoport neve",
-                "all_groups" to "Összes csoport"
+                "all_groups" to "Összes csoport",
+                "showcase_welcome" to "Üdvözlünk az új verzióban!",
+                "showcase_modes" to "Válaszd a Normált a napi rutinhoz, vagy az Extrát egy konkrét csoporthoz.",
+                "showcase_days" to "Itt válthatsz a napok között. Minden naphoz más gyakorlatok tartozhatnak.",
+                "showcase_timers" to "Itt követheted a teljes időt és az aktuális gyakorlat/pihenő idejét.",
+                "showcase_exercises" to "Kattints egy sorozatra, ha kész vagy. Az app automatikusan léptet a következőhöz.",
+                "showcase_finish" to "Ha minden kész, itt tudod elmenteni az edzést.",
+                "showcase_menu" to "A menüben kezelheted a gyakorlatokat, csoportokat vagy válthatsz nyelvet.",
+                "next" to "Következő",
+                "got_it" to "Értem"
             )
         }
     }

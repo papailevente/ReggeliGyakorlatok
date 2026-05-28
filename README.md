@@ -37,6 +37,10 @@ A modern, professional fitness tracking application built with **Kotlin** and **
 
 ## Changelog 📝
 
+### v1.3.1
+- **Feature Tour**: Added an interactive showcase to guide users through the app's features.
+- **Onboarding Improvement**: Visual highlights for key components like Modes, Timers, and Groups.
+
 ### v1.3.0
 - **Exercise Groups**: Organize exercises into custom categories for more focused workouts.
 - **Normal & Extra Modes**: Choose between a full daily routine or selecting a specific group.

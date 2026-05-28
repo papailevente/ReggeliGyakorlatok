@@ -26,6 +26,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,6 +54,9 @@ fun WorkoutScreen(
     val currentMode by viewModel.currentMode
     val selectedGroupId by viewModel.selectedGroupId
     
+    val showcaseStep by viewModel.showcaseStep
+    val targets = remember { mutableStateMapOf<Int, Rect>() }
+
     val totalTime by viewModel.totalTime
     val exerciseTime by viewModel.exerciseTime
     val isTotalRunning by viewModel.isTotalRunning
@@ -179,6 +185,7 @@ fun WorkoutScreen(
                             modifier = Modifier
                                 .align(Alignment.CenterStart)
                                 .size(32.dp)
+                                .onGloballyPositioned { targets[6] = it.boundsInRoot() }
                         ) {
                             Text("☰", fontSize = 16.sp, color = Color.White)
                         }
@@ -285,7 +292,11 @@ fun WorkoutScreen(
             } else {
                 when {
                     currentMode == AppMode.None -> {
-                        ModeSelectionScreen(strings) { viewModel.currentMode.value = it }
+                        ModeSelectionScreen(
+                            strings = strings, 
+                            modifier = Modifier.onGloballyPositioned { targets[1] = it.boundsInRoot() },
+                            onModeSelected = { viewModel.currentMode.value = it }
+                        )
                     }
                     currentMode == AppMode.Extra && selectedGroupId == null -> {
                         GroupSelectionScreen(strings, viewModel.exerciseGroups) { viewModel.selectedGroupId.value = it }
@@ -307,19 +318,56 @@ fun WorkoutScreen(
                             allSetsDone = allSetsDone,
                             flashingButtonColor = flashingButtonColor,
                             totalSetsRequired = totalSetsRequired,
-                            onFinishWorkout = onFinishWorkout
+                            onFinishWorkout = onFinishWorkout,
+                            onTargetPositioned = { id, rect -> targets[id] = rect }
                         )
                     }
                 }
+            }
+
+            // Showcase Overlay Layer
+            if (showcaseStep >= 0) {
+                val stepText = when (showcaseStep) {
+                    0 -> strings["showcase_welcome"]
+                    1 -> strings["showcase_modes"]
+                    2 -> strings["showcase_timers"]
+                    3 -> strings["showcase_days"]
+                    4 -> strings["showcase_exercises"]
+                    5 -> strings["showcase_finish"]
+                    6 -> strings["showcase_menu"]
+                    else -> ""
+                } ?: ""
+                
+                ShowcaseOverlay(
+                    targetRect = targets[showcaseStep],
+                    text = stepText,
+                    onNext = { 
+                        if (showcaseStep < 6) viewModel.showcaseStep.intValue++ 
+                        else {
+                            viewModel.showcaseStep.intValue = -1
+                            viewModel.isShowcaseDismissed.value = true
+                        }
+                    },
+                    onSkip = { 
+                        viewModel.showcaseStep.intValue = -1
+                        viewModel.isShowcaseDismissed.value = true
+                    },
+                    isLastStep = showcaseStep == 6,
+                    strings = strings
+                )
             }
         }
     }
 }
 
 @Composable
-fun ModeSelectionScreen(strings: Map<String, String>, onModeSelected: (AppMode) -> Unit) {
+fun ModeSelectionScreen(
+    strings: Map<String, String>, 
+    modifier: Modifier = Modifier,
+    onModeSelected: (AppMode) -> Unit
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -405,7 +453,8 @@ fun WorkoutContent(
     allSetsDone: Boolean,
     flashingButtonColor: Color,
     totalSetsRequired: Int,
-    onFinishWorkout: (Int, List<Pair<String, Int>>) -> Unit
+    onFinishWorkout: (Int, List<Pair<String, Int>>) -> Unit,
+    onTargetPositioned: (Int, Rect) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
@@ -418,7 +467,7 @@ fun WorkoutContent(
             onReset = { viewModel.resetTotalTimer() },
             showReset = true,
             backgroundColor = Color(0xFF8DB600).copy(alpha = 0.6f),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().onGloballyPositioned { onTargetPositioned(2, it.boundsInRoot()) },
             strings = strings
         )
 
@@ -468,7 +517,7 @@ fun WorkoutContent(
                     color = Color.Yellow
                 )
             },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).onGloballyPositioned { onTargetPositioned(3, it.boundsInRoot()) }
         ) {
             (1..7).forEach { day ->
                 Tab(
@@ -494,7 +543,7 @@ fun WorkoutContent(
 
         LazyColumn(
             state = listState,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).onGloballyPositioned { onTargetPositioned(4, it.boundsInRoot()) },
             verticalArrangement = Arrangement.spacedBy(4.dp),
             contentPadding = PaddingValues(vertical = 40.dp)
         ) {
@@ -541,7 +590,7 @@ fun WorkoutContent(
                 }
             },
             containerColor = if (allSetsDone) flashingButtonColor else null,
-            modifier = Modifier.fillMaxWidth().height(56.dp)
+            modifier = Modifier.fillMaxWidth().height(56.dp).onGloballyPositioned { onTargetPositioned(5, it.boundsInRoot()) }
         ) {
             Text(text = strings["finish"]!!, style = MaterialTheme.typography.titleMedium)
         }

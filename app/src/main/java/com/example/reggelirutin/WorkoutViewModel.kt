@@ -46,6 +46,10 @@ class WorkoutViewModel(context: Context) : ViewModel() {
     var exerciseGroups = mutableStateListOf<ExerciseGroupEntity>()
     var allGroups = mutableStateListOf<ExerciseGroupEntity>()
 
+    // Showcase State
+    var showcaseStep = mutableIntStateOf(-1) // -1 means inactive
+    var isShowcaseDismissed = mutableStateOf(false)
+
     private var totalTimerJob: Job? = null
     private var exerciseTimerJob: Job? = null
     private var restTimerJob: Job? = null

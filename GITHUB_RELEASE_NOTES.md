@@ -1,18 +1,14 @@
-# MorningRoutine v1.3.0 🚀
+# MorningRoutine v1.3.1 🚀
 
-This update introduces **Exercise Groups** and **Custom Modes**!
+This update introduces an **Interactive Feature Tour** to help you get the most out of your workout!
 
 ## ✨ Highlights
-*   **Exercise Groups**: Organize your workout into logical segments (e.g., Upper Body, Cardio, etc.).
-*   **Normal & Extra Modes**: 
-    *   Choose **Normal** for your regular daily routine.
-    *   Choose **Extra** to pick a specific group and focus only on those exercises.
-*   **Flexible Assignment**: Assign exercises to groups or keep them in the main daily list.
+*   **Interactive Showcase**: A step-by-step guide highlighting all the app's features, from the new modes to the exercise timers.
+*   **Improved Onboarding**: Perfect for new users or long-time fans discovering the new Group features.
 
 ## 🛠 Improvements
-*   **Database Upgrade**: Version 4 schema with group support and migration.
-*   **Mode Selection**: New intuitive UI for choosing how you want to train.
-*   **Version Update**: Bumped to v1.3.0 (Build 16).
+*   **Visual Polish**: Refined UI for better guidance.
+*   **Version Update**: Bumped to v1.3.1 (Build 17).
 
 ---
 *Made by Zsenike with Grok and Gemini.*
