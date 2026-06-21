@@ -13,8 +13,8 @@ android {
         applicationId = "com.example.reggelirutin"
         minSdk = 24
         targetSdk = 37
-        versionCode = 20
-        versionName = "1.3.4"
+        versionCode = 21
+        versionName = "1.4.0"
         base.archivesName.set("MorningRoutine")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

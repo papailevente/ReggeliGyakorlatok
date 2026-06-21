@@ -37,6 +37,12 @@ A modern, professional fitness tracking application built with **Kotlin** and **
 
 ## Changelog 📝
 
+### v1.4.0
+- **Polished UI**: Completely redesigned the "About" dialog for better visibility of the version number.
+- **Robust Update Engine**: Improved the update check reliability and added clearer messaging when the app is up to date.
+- **Smart Showcase**: Fixed the feature tour persistence so you only see it once per version.
+- **Major Version Bump**: Introducing v1.4.0 with critical stability and UX improvements.
+
 ### v1.3.4
 - **Stabilization**: Finalized the feature tour logic and fixed persistence issues.
 - **UI Consistency**: Improved the About dialog layout and versioning info.

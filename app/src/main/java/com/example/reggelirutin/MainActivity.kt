@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PlayArrow
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -102,8 +104,8 @@ fun ReggeliRutinApp() {
         
         // Auto check for update
         val versionName = try {
-            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.4"
-        } catch (_: Exception) { "1.0.0" }
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.4.0"
+        } catch (_: Exception) { "1.4.0" }
         
         val result = updateManager.checkForUpdate(versionName)
         if (result is UpdateResult.NewVersionAvailable) {
@@ -119,7 +121,7 @@ fun ReggeliRutinApp() {
             text = { 
                 val currentVersion = try {
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName
-                } catch (_: Exception) { "1.3.4" }
+                } catch (_: Exception) { "1.4.0" }
                 Text("${strings["new_version"] ?: "New version"}: v${currentUpdateResult.version}\n${strings["current_version"] ?: "Current version"}: v$currentVersion") 
             },
             confirmButton = {
@@ -206,22 +208,29 @@ fun ReggeliRutinApp() {
         if (showAboutDialog) {
             val versionName = try {
                 context.packageManager.getPackageInfo(context.packageName, 0).versionName
-            } catch (_: Exception) { "1.3.4" }
+            } catch (_: Exception) { "1.4.0" }
 
             AlertDialog(
                 onDismissRequest = { if (showAboutDialog) showAboutDialog = false },
-                title = { 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(strings["about_title"] ?: "About")
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = "v$versionName",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                        )
+                title = { Text(strings["about_title"] ?: "About") },
+                text = { 
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                        Text("made by Zsenike with Grok and Gemini.")
+                        Spacer(Modifier.height(16.dp))
+                        Surface(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = "v$versionName",
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
                     }
                 },
-                text = { Text("made by Zsenike with Grok and Gemini.") },
                 confirmButton = {
                     TextButton(onClick = { if (showAboutDialog) showAboutDialog = false }) { Text("OK") }
                 }
@@ -294,8 +303,8 @@ fun ReggeliRutinApp() {
                             onCheckUpdate = {
                                 scope.launch {
                                     val versionName = try {
-                                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.4"
-                                    } catch (_: Exception) { "1.3.4" }
+                                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.4.0"
+                                    } catch (_: Exception) { "1.4.0" }
                                     
                                     when (val result = updateManager.checkForUpdate(versionName, force = true)) {
                                         is UpdateResult.NewVersionAvailable -> {

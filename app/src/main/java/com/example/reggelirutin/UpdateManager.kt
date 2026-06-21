@@ -86,42 +86,35 @@ class UpdateManager(private val context: Context) {
     suspend fun checkForUpdate(currentVersion: String, force: Boolean = false): UpdateResult = withContext(Dispatchers.IO) {
         if (!force && !shouldCheckForUpdate()) return@withContext UpdateResult.NoUpdate
         
-        val hasNet = isNetworkAvailable()
-        android.util.Log.d("UpdateManager", "Checking for update. Force: $force, Network available: $hasNet")
-        
-        if (!hasNet) return@withContext UpdateResult.Error
+        if (!isNetworkAvailable()) return@withContext UpdateResult.Error
 
         try {
             val request = Request.Builder()
                 .url(AppConfig.GITHUB_API_URL)
-                .header("User-Agent", "MorningRoutine-v1.3.4-papailevente")
+                .header("User-Agent", "MorningRoutine-v1.4.0")
                 .header("Accept", "application/vnd.github.v3+json")
                 .build()
             client.newCall(request).execute().use { response ->
-                android.util.Log.d("UpdateManager", "Response code: ${response.code}")
                 if (!response.isSuccessful) {
-                    android.util.Log.e("UpdateManager", "Failed: ${response.code} ${response.message}")
-                    return@withContext UpdateResult.Error
+                    android.util.Log.e("UpdateManager", "HTTP Error: ${response.code}")
+                    return@withContext if (response.code == 404) UpdateResult.NoUpdate else UpdateResult.Error
                 }
                 
                 val body = response.body?.string()
-                if (body.isNullOrBlank()) {
-                    android.util.Log.e("UpdateManager", "Empty or blank body")
-                    return@withContext UpdateResult.Error
+                if (body.isNullOrBlank()) return@withContext UpdateResult.Error
+                
+                val release = try {
+                    gson.fromJson(body, GitHubRelease::class.java)
+                } catch (e: Exception) {
+                    android.util.Log.e("UpdateManager", "JSON Parse Error", e)
+                    null
                 }
                 
-                val release = gson.fromJson(body, GitHubRelease::class.java)
-                
-                if (release?.tagName == null) {
-                    android.util.Log.e("UpdateManager", "Invalid JSON: tagName is null. Body: $body")
-                    return@withContext UpdateResult.Error
-                }
+                if (release?.tagName == null) return@withContext UpdateResult.Error
 
-                val latestVersion = release.tagName.removePrefix("v")
-                val current = currentVersion.removePrefix("v")
+                val latestVersion = release.tagName.trim().removePrefix("v")
+                val current = currentVersion.trim().removePrefix("v")
                 
-                android.util.Log.d("UpdateManager", "Current: $current, Latest: $latestVersion")
-
                 // Update last check time
                 context.dataStore.edit { it[LAST_CHECK_KEY] = System.currentTimeMillis() }
 
@@ -134,7 +127,7 @@ class UpdateManager(private val context: Context) {
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("UpdateManager", "Exception during update check: ${e.message}", e)
+            android.util.Log.e("UpdateManager", "Connection Error: ${e.message}")
             UpdateResult.Error
         }
     }
