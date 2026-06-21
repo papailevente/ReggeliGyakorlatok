@@ -66,6 +66,7 @@ fun ReggeliRutinApp() {
     var showAboutDialog by remember { mutableStateOf(false) }
     var showFullScreenSplash by remember { mutableStateOf(true) }
     var showMigrationDialog by remember { mutableStateOf(false) }
+    var showShowcasePrompt by remember { mutableStateOf(false) }
     
     val updateResultState = remember { mutableStateOf<UpdateResult?>(null) }
     val strings = rememberStrings(currentLanguage)
@@ -90,13 +91,14 @@ fun ReggeliRutinApp() {
         showFullScreenSplash = false
 
         // Check for Showcase trigger
-        if (!viewModel.isShowcaseDismissed.value) {
-            viewModel.showcaseStep.intValue = 0
+        val lastShowcase = updateManager.lastShowcaseVersion.first()
+        if (lastShowcase < currentVersionCode) {
+            showShowcasePrompt = true
         }
         
         // Auto check for update
         val versionName = try {
-            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.2"
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.3"
         } catch (_: Exception) { "1.0.0" }
         
         val result = updateManager.checkForUpdate(versionName)
@@ -113,7 +115,7 @@ fun ReggeliRutinApp() {
             text = { 
                 val currentVersion = try {
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName
-                } catch (_: Exception) { "1.3.2" }
+                } catch (_: Exception) { "1.3.3" }
                 Text("${strings["new_version"] ?: "New version"}: v${currentUpdateResult.version}\n${strings["current_version"] ?: "Current version"}: v$currentVersion") 
             },
             confirmButton = {
@@ -126,6 +128,58 @@ fun ReggeliRutinApp() {
             },
             dismissButton = {
                 TextButton(onClick = { updateResultState.value = null }) {
+                    Text(strings["later"] ?: "Later")
+                }
+            }
+        )
+    }
+
+    if (showShowcasePrompt) {
+        AlertDialog(
+            onDismissRequest = { 
+                showShowcasePrompt = false 
+                scope.launch { 
+                    val currentVersionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        try { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode } catch (_: Exception) { 0L }
+                    } else {
+                        @Suppress("DEPRECATION")
+                        try { context.packageManager.getPackageInfo(context.packageName, 0).versionCode.toLong() } catch (_: Exception) { 0L }
+                    }
+                    updateManager.updateLastShowcaseVersion(currentVersionCode) 
+                }
+            },
+            title = { Text(strings["showcase_title"] ?: "Quick Tour") },
+            text = { Text(strings["showcase_ask"] ?: "Would you like a quick tour of the new features?") },
+            confirmButton = {
+                Button(onClick = { 
+                    showShowcasePrompt = false
+                    viewModel.showcaseStep.intValue = 0
+                    scope.launch { 
+                        val currentVersionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                            try { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode } catch (_: Exception) { 0L }
+                        } else {
+                            @Suppress("DEPRECATION")
+                            try { context.packageManager.getPackageInfo(context.packageName, 0).versionCode.toLong() } catch (_: Exception) { 0L }
+                        }
+                        updateManager.updateLastShowcaseVersion(currentVersionCode) 
+                    }
+                }) {
+                    Text(strings["start_tour"] ?: "Start Tour")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    showShowcasePrompt = false 
+                    scope.launch { 
+                        val currentVersionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                            try { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode } catch (_: Exception) { 0L }
+                        } else {
+                            @Suppress("DEPRECATION")
+                            try { context.packageManager.getPackageInfo(context.packageName, 0).versionCode.toLong() } catch (_: Exception) { 0L }
+                        }
+                        updateManager.updateLastShowcaseVersion(currentVersionCode) 
+                    }
+                }) {
                     Text(strings["later"] ?: "Later")
                 }
             }
@@ -164,10 +218,24 @@ fun ReggeliRutinApp() {
         }
     } else {
         if (showAboutDialog) {
+            val versionName = try {
+                context.packageManager.getPackageInfo(context.packageName, 0).versionName
+            } catch (_: Exception) { "1.3.3" }
+
             AlertDialog(
                 onDismissRequest = { if (showAboutDialog) showAboutDialog = false },
                 title = { Text(strings["about_title"] ?: "About") },
-                text = { Text("made by Zsenike with Grok and Gemini.") },
+                text = { 
+                    Column {
+                        Text("made by Zsenike with Grok and Gemini.")
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "Version: v$versionName",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
+                },
                 confirmButton = {
                     TextButton(onClick = { if (showAboutDialog) showAboutDialog = false }) { Text("OK") }
                 }
@@ -240,8 +308,8 @@ fun ReggeliRutinApp() {
                             onCheckUpdate = {
                                 scope.launch {
                                     val versionName = try {
-                                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.2"
-                                    } catch (_: Exception) { "1.3.2" }
+                                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.3"
+                                    } catch (_: Exception) { "1.3.3" }
                                     
                                     when (val result = updateManager.checkForUpdate(versionName, force = true)) {
                                         is UpdateResult.NewVersionAvailable -> {

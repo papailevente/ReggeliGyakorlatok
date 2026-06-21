@@ -350,6 +350,7 @@ fun WorkoutScreen(
                         viewModel.showcaseStep.intValue = -1
                         viewModel.isShowcaseDismissed.value = true
                     },
+                    isFirstStep = showcaseStep == 0,
                     isLastStep = showcaseStep == 6,
                     strings = strings
                 )

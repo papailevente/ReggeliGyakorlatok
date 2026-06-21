@@ -64,6 +64,9 @@ fun rememberStrings(language: String): Map<String, String> {
                 "showcase_exercises" to "Click on a set to mark it as done. The app will automatically guide you to the next set.",
                 "showcase_finish" to "When you're done with everything, click here to save your workout.",
                 "showcase_menu" to "Use the menu to manage your exercises, groups, or change the language.",
+                "showcase_title" to "Quick Tour",
+                "showcase_ask" to "Would you like a quick tour of the new features?",
+                "start_tour" to "Start Tour",
                 "next" to "Next",
                 "demo" to "Demo",
                 "got_it" to "Got it"
@@ -125,6 +128,9 @@ fun rememberStrings(language: String): Map<String, String> {
                 "showcase_exercises" to "Klicken Sie auf einen Satz, um ihn abzuschließen. Die App führt Sie automatisch weiter.",
                 "showcase_finish" to "Wenn Sie fertig sind, klicken Sie hier, um das Training zu speichern.",
                 "showcase_menu" to "Nutzen Sie das Menü, um Übungen und Gruppen zu verwalten.",
+                "showcase_title" to "Kurze Tour",
+                "showcase_ask" to "Möchten Sie eine kurze Tour durch die neuen Funktionen?",
+                "start_tour" to "Tour starten",
                 "next" to "Weiter",
                 "demo" to "Demo",
                 "got_it" to "Verstanden"
@@ -186,6 +192,9 @@ fun rememberStrings(language: String): Map<String, String> {
                 "showcase_exercises" to "Kattints egy sorozatra, ha kész vagy. Az app automatikusan léptet a következőhöz.",
                 "showcase_finish" to "Ha minden kész, itt tudod elmenteni az edzést.",
                 "showcase_menu" to "A menüben kezelheted a gyakorlatokat, csoportokat vagy válthatsz nyelvet.",
+                "showcase_title" to "Gyors bemutató",
+                "showcase_ask" to "Szeretnél egy rövid bemutatót az új funkciókról?",
+                "start_tour" to "Indítás",
                 "next" to "Következő",
                 "demo" to "Demo",
                 "got_it" to "Értem"

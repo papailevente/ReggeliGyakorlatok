@@ -1,14 +1,15 @@
-# MorningRoutine v1.3.2 🚀
+# MorningRoutine v1.3.3 🚀
 
-This update focuses on refining the **Interactive Feature Tour** for a smoother onboarding experience!
+This update introduces a smarter way to explore the app's features!
 
 ## ✨ Highlights
-*   **Intelligent UI Placement**: The showcase guide now intelligently positions itself to avoid covering the buttons or elements it is highlighting.
-*   **Adaptive Layout**: Fixed overlapping issues in both portrait and landscape modes.
+*   **Onboarding Prompt**: The app now asks before starting the Feature Tour, giving you the choice to explore now or later.
+*   **Smart Persistence**: We remember your onboarding preference for each version, reducing interruptions.
+*   **Enhanced Visibility**: Improved the transparency and layer handling of the showcase overlay to ensure all background elements are clearly visible.
 
 ## 🛠 Improvements
-*   **Showcase Polish**: Refined the transition and visibility of the "Next" and "Skip" buttons.
-*   **Version Update**: Bumped to v1.3.2 (Build 18).
+*   **About Dialog**: Now displays the current version number for easier support.
+*   **Version Update**: Bumped to v1.3.3 (Build 19).
 
 ---
 *Made by Zsenike with Grok and Gemini.*

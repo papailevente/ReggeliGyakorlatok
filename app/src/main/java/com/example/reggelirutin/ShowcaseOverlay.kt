@@ -24,7 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +38,7 @@ fun ShowcaseOverlay(
     text: String,
     onNext: () -> Unit,
     onSkip: () -> Unit,
+    isFirstStep: Boolean,
     isLastStep: Boolean,
     strings: Map<String, String>
 ) {
@@ -43,7 +46,8 @@ fun ShowcaseOverlay(
         modifier = Modifier
             .fillMaxSize()
             .zIndex(10f)
-            .background(Color.Black.copy(alpha = 0.75f))
+            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen) // Crucial for BlendMode.Clear
+            .background(Color.Black.copy(alpha = 0.7f))
             .clickable(enabled = false) {}
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -53,12 +57,12 @@ fun ShowcaseOverlay(
                 }
                 targetRect?.let {
                     canvas.drawRoundRect(
-                        left = it.left - 8.dp.toPx(),
-                        top = it.top - 8.dp.toPx(),
-                        right = it.right + 8.dp.toPx(),
-                        bottom = it.bottom + 8.dp.toPx(),
-                        radiusX = 12.dp.toPx(),
-                        radiusY = 12.dp.toPx(),
+                        left = it.left - 12.dp.toPx(),
+                        top = it.top - 12.dp.toPx(),
+                        right = it.right + 12.dp.toPx(),
+                        bottom = it.bottom + 12.dp.toPx(),
+                        radiusX = 16.dp.toPx(),
+                        radiusY = 16.dp.toPx(),
                         paint = paint
                     )
                 }
@@ -69,6 +73,7 @@ fun ShowcaseOverlay(
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val screenHeightPx = with(density) { maxHeight.toPx() }
             
+            // If target is in top half, show dialog at bottom, and vice versa
             val isTargetInTopHalf = targetRect?.let { ((it.top + it.bottom) / 2f) < screenHeightPx / 2f } ?: true
             
             val alignment = when {
@@ -80,7 +85,7 @@ fun ShowcaseOverlay(
             Column(
                 modifier = Modifier
                     .align(alignment)
-                    .padding(horizontal = 24.dp, vertical = 64.dp)
+                    .padding(horizontal = 24.dp, vertical = 80.dp)
                     .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(24.dp))
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -105,10 +110,12 @@ fun ShowcaseOverlay(
                         onClick = onNext,
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(
-                            text = if (isLastStep) (strings["got_it"] ?: "Got it") else (strings["demo"] ?: "Demo"),
-                            fontSize = 16.sp
-                        )
+                        val buttonText = when {
+                            isLastStep -> strings["got_it"] ?: "Got it"
+                            isFirstStep -> strings["demo"] ?: "Demo"
+                            else -> strings["next"] ?: "Next"
+                        }
+                        Text(text = buttonText, fontSize = 16.sp)
                     }
                 }
             }

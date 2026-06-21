@@ -53,9 +53,17 @@ class UpdateManager(private val context: Context) {
     private val LAST_CHECK_KEY = longPreferencesKey("last_update_check")
     private val AUTO_CHECK_ENABLED = booleanPreferencesKey("auto_update_enabled")
     private val LAST_APP_VERSION = longPreferencesKey("last_app_version")
+    private val LAST_SHOWCASE_VERSION = longPreferencesKey("last_showcase_version")
 
     val lastAppVersion: Flow<Long> = context.dataStore.data
         .map { it[LAST_APP_VERSION] ?: 0L }
+
+    val lastShowcaseVersion: Flow<Long> = context.dataStore.data
+        .map { it[LAST_SHOWCASE_VERSION] ?: 0L }
+
+    suspend fun updateLastShowcaseVersion(version: Long) {
+        context.dataStore.edit { it[LAST_SHOWCASE_VERSION] = version }
+    }
 
     suspend fun updateLastAppVersion(version: Long) {
         context.dataStore.edit { it[LAST_APP_VERSION] = version }
