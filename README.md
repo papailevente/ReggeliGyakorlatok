@@ -37,6 +37,11 @@ A modern, professional fitness tracking application built with **Kotlin** and **
 
 ## Changelog 📝
 
+### v1.3.4
+- **Stabilization**: Finalized the feature tour logic and fixed persistence issues.
+- **UI Consistency**: Improved the About dialog layout and versioning info.
+- **Code Cleanup**: Removed redundant logs and improved error handling in update checks.
+
 ### v1.3.3
 - **Smart Onboarding**: The app now asks if you want to see the feature tour after an update.
 - **Persistence**: Your choice is remembered and won't be asked again until the next major feature update.

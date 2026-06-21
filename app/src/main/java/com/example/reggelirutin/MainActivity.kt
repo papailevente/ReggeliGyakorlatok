@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,6 +32,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
+
+import kotlin.time.Duration.Companion.seconds
 
 sealed class Screen(val route: String, val icon: ImageVector, val labelKey: String) {
     object Workout : Screen("workout", Icons.Default.PlayArrow, "workout_tab")
@@ -54,9 +57,17 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("UnusedAssignment", "UNUSED_VALUE", "AssignedValueIsNeverRead")
 fun ReggeliRutinApp() {
     val context = LocalContext.current
+    val currentVersionCode = remember {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            try { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode } catch (_: Exception) { 0L }
+        } else {
+            @Suppress("DEPRECATION")
+            try { context.packageManager.getPackageInfo(context.packageName, 0).versionCode.toLong() } catch (_: Exception) { 0L }
+        }
+    }
+    
     val viewModel: WorkoutViewModel = viewModel(factory = WorkoutViewModel.Factory(context))
     val navController = rememberNavController()
     val updateManager = remember { UpdateManager(context) }
@@ -74,20 +85,13 @@ fun ReggeliRutinApp() {
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        val currentVersionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-            try { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode } catch (_: Exception) { 0L }
-        } else {
-            @Suppress("DEPRECATION")
-            try { context.packageManager.getPackageInfo(context.packageName, 0).versionCode.toLong() } catch (_: Exception) { 0L }
-        }
-
         val lastVersion = updateManager.lastAppVersion.first()
         if (lastVersion != 0L && lastVersion < currentVersionCode) {
             showMigrationDialog = true
         }
         updateManager.updateLastAppVersion(currentVersionCode)
 
-        delay(2000)
+        delay(2.seconds)
         showFullScreenSplash = false
 
         // Check for Showcase trigger
@@ -98,7 +102,7 @@ fun ReggeliRutinApp() {
         
         // Auto check for update
         val versionName = try {
-            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.3"
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.4"
         } catch (_: Exception) { "1.0.0" }
         
         val result = updateManager.checkForUpdate(versionName)
@@ -115,7 +119,7 @@ fun ReggeliRutinApp() {
             text = { 
                 val currentVersion = try {
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName
-                } catch (_: Exception) { "1.3.3" }
+                } catch (_: Exception) { "1.3.4" }
                 Text("${strings["new_version"] ?: "New version"}: v${currentUpdateResult.version}\n${strings["current_version"] ?: "Current version"}: v$currentVersion") 
             },
             confirmButton = {
@@ -139,12 +143,6 @@ fun ReggeliRutinApp() {
             onDismissRequest = { 
                 showShowcasePrompt = false 
                 scope.launch { 
-                    val currentVersionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                        try { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode } catch (_: Exception) { 0L }
-                    } else {
-                        @Suppress("DEPRECATION")
-                        try { context.packageManager.getPackageInfo(context.packageName, 0).versionCode.toLong() } catch (_: Exception) { 0L }
-                    }
                     updateManager.updateLastShowcaseVersion(currentVersionCode) 
                 }
             },
@@ -155,12 +153,6 @@ fun ReggeliRutinApp() {
                     showShowcasePrompt = false
                     viewModel.showcaseStep.intValue = 0
                     scope.launch { 
-                        val currentVersionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                            try { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode } catch (_: Exception) { 0L }
-                        } else {
-                            @Suppress("DEPRECATION")
-                            try { context.packageManager.getPackageInfo(context.packageName, 0).versionCode.toLong() } catch (_: Exception) { 0L }
-                        }
                         updateManager.updateLastShowcaseVersion(currentVersionCode) 
                     }
                 }) {
@@ -171,12 +163,6 @@ fun ReggeliRutinApp() {
                 TextButton(onClick = { 
                     showShowcasePrompt = false 
                     scope.launch { 
-                        val currentVersionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                            try { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode } catch (_: Exception) { 0L }
-                        } else {
-                            @Suppress("DEPRECATION")
-                            try { context.packageManager.getPackageInfo(context.packageName, 0).versionCode.toLong() } catch (_: Exception) { 0L }
-                        }
                         updateManager.updateLastShowcaseVersion(currentVersionCode) 
                     }
                 }) {
@@ -220,22 +206,22 @@ fun ReggeliRutinApp() {
         if (showAboutDialog) {
             val versionName = try {
                 context.packageManager.getPackageInfo(context.packageName, 0).versionName
-            } catch (_: Exception) { "1.3.3" }
+            } catch (_: Exception) { "1.3.4" }
 
             AlertDialog(
                 onDismissRequest = { if (showAboutDialog) showAboutDialog = false },
-                title = { Text(strings["about_title"] ?: "About") },
-                text = { 
-                    Column {
-                        Text("made by Zsenike with Grok and Gemini.")
-                        Spacer(Modifier.height(8.dp))
+                title = { 
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(strings["about_title"] ?: "About")
+                        Spacer(Modifier.width(8.dp))
                         Text(
-                            text = "Version: v$versionName",
+                            text = "v$versionName",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                         )
                     }
                 },
+                text = { Text("made by Zsenike with Grok and Gemini.") },
                 confirmButton = {
                     TextButton(onClick = { if (showAboutDialog) showAboutDialog = false }) { Text("OK") }
                 }
@@ -308,8 +294,8 @@ fun ReggeliRutinApp() {
                             onCheckUpdate = {
                                 scope.launch {
                                     val versionName = try {
-                                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.3"
-                                    } catch (_: Exception) { "1.3.3" }
+                                        context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.3.4"
+                                    } catch (_: Exception) { "1.3.4" }
                                     
                                     when (val result = updateManager.checkForUpdate(versionName, force = true)) {
                                         is UpdateResult.NewVersionAvailable -> {

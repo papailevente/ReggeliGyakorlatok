@@ -34,10 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("AssignedValueIsNeverRead", "UNUSED_VALUE")
+@Suppress("UNUSED_VALUE")
 fun WorkoutScreen(
     strings: Map<String, String>,
     viewModel: WorkoutViewModel,
@@ -584,7 +585,7 @@ fun WorkoutContent(
                 val data = exercises.mapIndexed { idx, ex -> ex.name to currentSet[idx] }
                 scope.launch {
                     viewModel.workoutDone.value = true
-                    delay(3000)
+                    delay(3.seconds)
                     onFinishWorkout(totalTime, data)
                 }
             },

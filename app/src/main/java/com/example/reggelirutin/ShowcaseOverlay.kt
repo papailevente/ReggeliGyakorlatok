@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +40,7 @@ fun ShowcaseOverlay(
     onSkip: () -> Unit,
     isFirstStep: Boolean,
     isLastStep: Boolean,
-    strings: Map<String, String>
+    strings: Map<String, String>,
 ) {
     Box(
         modifier = Modifier
@@ -70,53 +70,52 @@ fun ShowcaseOverlay(
         }
 
         val density = LocalDensity.current
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            val screenHeightPx = with(density) { maxHeight.toPx() }
-            
-            // If target is in top half, show dialog at bottom, and vice versa
-            val isTargetInTopHalf = targetRect?.let { ((it.top + it.bottom) / 2f) < screenHeightPx / 2f } ?: true
-            
-            val alignment = when {
-                targetRect == null -> Alignment.Center
-                isTargetInTopHalf -> Alignment.BottomCenter
-                else -> Alignment.TopCenter
-            }
+        val configuration = LocalConfiguration.current
+        val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+        
+        // If target is in top half, show dialog at bottom, and vice versa
+        val isTargetInTopHalf = targetRect?.let { ((it.top + it.bottom) / 2f) < screenHeightPx / 2f } ?: true
+        
+        val alignment = when {
+            targetRect == null -> Alignment.Center
+            isTargetInTopHalf -> Alignment.BottomCenter
+            else -> Alignment.TopCenter
+        }
 
-            Column(
-                modifier = Modifier
-                    .align(alignment)
-                    .padding(horizontal = 24.dp, vertical = 80.dp)
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(24.dp))
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+        Column(
+            modifier = Modifier
+                .align(alignment)
+                .padding(horizontal = 24.dp, vertical = 80.dp)
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(24.dp))
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                fontSize = 18.sp,
+                lineHeight = 24.sp
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    fontSize = 18.sp,
-                    lineHeight = 24.sp
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+                TextButton(onClick = onSkip) {
+                    Text(strings["later"] ?: "Later", fontSize = 16.sp)
+                }
+                Button(
+                    onClick = onNext,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    TextButton(onClick = onSkip) {
-                        Text(strings["later"] ?: "Later", fontSize = 16.sp)
+                    val buttonText = when {
+                        isLastStep -> strings["got_it"] ?: "Got it"
+                        isFirstStep -> strings["demo"] ?: "Demo"
+                        else -> strings["next"] ?: "Next"
                     }
-                    Button(
-                        onClick = onNext,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        val buttonText = when {
-                            isLastStep -> strings["got_it"] ?: "Got it"
-                            isFirstStep -> strings["demo"] ?: "Demo"
-                            else -> strings["next"] ?: "Next"
-                        }
-                        Text(text = buttonText, fontSize = 16.sp)
-                    }
+                    Text(text = buttonText, fontSize = 16.sp)
                 }
             }
         }
