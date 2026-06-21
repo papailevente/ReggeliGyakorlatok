@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,8 +25,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 
 @Composable
 fun ShowcaseOverlay(
@@ -39,8 +42,9 @@ fun ShowcaseOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.7f))
-            .clickable(enabled = false) {} // Consume clicks
+            .zIndex(10f)
+            .background(Color.Black.copy(alpha = 0.75f))
+            .clickable(enabled = false) {}
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawIntoCanvas { canvas ->
@@ -48,7 +52,6 @@ fun ShowcaseOverlay(
                     blendMode = BlendMode.Clear
                 }
                 targetRect?.let {
-                    // Draw a cleared rounded rect for the target
                     canvas.drawRoundRect(
                         left = it.left - 8.dp.toPx(),
                         top = it.top - 8.dp.toPx(),
@@ -62,30 +65,51 @@ fun ShowcaseOverlay(
             }
         }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(32.dp)
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                fontSize = 18.sp
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+        val density = LocalDensity.current
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val screenHeightPx = with(density) { maxHeight.toPx() }
+            
+            val isTargetInTopHalf = targetRect?.let { ((it.top + it.bottom) / 2f) < screenHeightPx / 2f } ?: true
+            
+            val alignment = when {
+                targetRect == null -> Alignment.Center
+                isTargetInTopHalf -> Alignment.BottomCenter
+                else -> Alignment.TopCenter
+            }
+
+            Column(
+                modifier = Modifier
+                    .align(alignment)
+                    .padding(horizontal = 24.dp, vertical = 64.dp)
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(24.dp))
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TextButton(onClick = onSkip) {
-                    Text(strings["later"] ?: "Later")
-                }
-                Button(onClick = onNext) {
-                    Text(if (isLastStep) (strings["got_it"] ?: "Got it") else (strings["next"] ?: "Next"))
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    fontSize = 18.sp,
+                    lineHeight = 24.sp
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = onSkip) {
+                        Text(strings["later"] ?: "Later", fontSize = 16.sp)
+                    }
+                    Button(
+                        onClick = onNext,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = if (isLastStep) (strings["got_it"] ?: "Got it") else (strings["demo"] ?: "Demo"),
+                            fontSize = 16.sp
+                        )
+                    }
                 }
             }
         }

@@ -65,6 +65,7 @@ fun rememberStrings(language: String): Map<String, String> {
                 "showcase_finish" to "When you're done with everything, click here to save your workout.",
                 "showcase_menu" to "Use the menu to manage your exercises, groups, or change the language.",
                 "next" to "Next",
+                "demo" to "Demo",
                 "got_it" to "Got it"
             )
             "Deutsch" -> mapOf(
@@ -125,6 +126,7 @@ fun rememberStrings(language: String): Map<String, String> {
                 "showcase_finish" to "Wenn Sie fertig sind, klicken Sie hier, um das Training zu speichern.",
                 "showcase_menu" to "Nutzen Sie das Menü, um Übungen und Gruppen zu verwalten.",
                 "next" to "Weiter",
+                "demo" to "Demo",
                 "got_it" to "Verstanden"
             )
             else -> mapOf(
@@ -185,6 +187,7 @@ fun rememberStrings(language: String): Map<String, String> {
                 "showcase_finish" to "Ha minden kész, itt tudod elmenteni az edzést.",
                 "showcase_menu" to "A menüben kezelheted a gyakorlatokat, csoportokat vagy válthatsz nyelvet.",
                 "next" to "Következő",
+                "demo" to "Demo",
                 "got_it" to "Értem"
             )
         }

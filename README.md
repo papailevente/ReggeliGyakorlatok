@@ -37,6 +37,10 @@ A modern, professional fitness tracking application built with **Kotlin** and **
 
 ## Changelog 📝
 
+### v1.3.2
+- **Showcase Fix**: Optimized the Feature Tour UI to avoid overlapping buttons and improve visibility on all screens.
+- **Improved UX**: Better positioning of interactive guide elements.
+
 ### v1.3.1
 - **Feature Tour**: Added an interactive showcase to guide users through the app's features.
 - **Onboarding Improvement**: Visual highlights for key components like Modes, Timers, and Groups.
